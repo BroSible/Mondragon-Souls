@@ -3,24 +3,44 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public Weapon currentWeapon; // ScriptableObject для текущего оружия
-    private float attackDelay; // Время задержки атаки
-    public bool isAttacking = false;
-    private CameraCursor cameraCursor;
-    private Animator animator;
-    public Weapon_holder _weaponHolder;
+    [Header("BasicComponents")]
+    private Animator _animator;
+    private System.Random _playerRandom = new System.Random();
 
+
+    [Header("ScriptComponents")]
+    private CameraCursor _cameraCursor;
+    public Weapon_holder _weaponHolder;
+    public Weapon currentWeapon; // ScriptableObject для текущего оружия
+    public Enemy enemy;
+
+
+    [Header("Fields")]
+    [SerializeField] private int _minPlayerDamage = 1;
+    [SerializeField] private int _maxPlayerDamage = 7;
+
+    // Изменить в будущем на более гибкую формулу высчитывания урона
+
+    [SerializeField] private float _attackRange = 5f;
+    [SerializeField] protected bool _enemyInAttackRange;
+
+    private float _attackCooldown = 3f; // Время задержки атаки
+    public bool isAttacking = false;
+
+    
 
     void Start()
     {
-        cameraCursor = GetComponent<CameraCursor>();
-        animator = GetComponent<Animator>();
+        _cameraCursor = GetComponent<CameraCursor>();
+        _animator = GetComponent<Animator>();
     }
 
     void Update()
     {
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
-        #region смена оружия
+        
+        #region Смена оружия
+        
         if (_weaponHolder != null)
         {
             currentWeapon = _weaponHolder.weapon;
@@ -30,6 +50,7 @@ public class PlayerAttack : MonoBehaviour
         {
             Debug.LogWarning("WeaponHolder не найден на объекте или его дочерних объектах.");
         }
+
         #endregion
 
         if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking)
@@ -44,21 +65,30 @@ public class PlayerAttack : MonoBehaviour
 
         else
         {
-            animator.SetBool("isAttacking", false);
+            _animator.SetBool("isAttacking", false);
         }
-
-        
     }
 
-    void Attack()
+    public int GetRandomPlayerDamage()
+    {
+        return _playerRandom.Next(_minPlayerDamage, _maxPlayerDamage + 1);
+    }
+
+    public void Attack()
     {
         isAttacking = true;
-        animator.SetBool("isAttacking", true);
-        cameraCursor.enabled = false;
+
+        int currentPlayerDamage = GetRandomPlayerDamage();
+        enemy.TakingPlayerDamage(currentPlayerDamage);
+        Debug.Log($"Игрок наносит врагу {currentPlayerDamage} ед. урона!");
+
+        _animator.SetBool("isAttacking", true);
+        _cameraCursor.enabled = false;
         StartCoroutine(ResetAttack());
     }
 
-    void EnhancedAttack()
+
+    public void EnhancedAttack()
     {
         Debug.Log("Сделана сильная атака");
     }
@@ -66,7 +96,7 @@ public class PlayerAttack : MonoBehaviour
     public IEnumerator ResetAttack()
     {
         yield return new WaitForSeconds(currentWeapon.attackDelay);
-        cameraCursor.enabled = true;
+        _cameraCursor.enabled = true;
         isAttacking = false;
     }
 
@@ -74,5 +104,4 @@ public class PlayerAttack : MonoBehaviour
     {
         currentWeapon = newWeapon;
     }
-
 }

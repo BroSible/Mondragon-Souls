@@ -129,7 +129,7 @@ public class Enemy : MonoBehaviour
                 break;
 
             case EnemyState.takingPlayerDamage:
-                player.EnemyAttacking();
+                // player.EnemyAttacking();
                 break;
 
             default:
@@ -218,7 +218,7 @@ public class Enemy : MonoBehaviour
         else
         {
             // Останавливаем врага при приближении к игроку на расстояние атаки
-            StopAgentMovement();
+            // StopAgentMovement();
             currentEnemyState = EnemyState.inAttack;
         }
 
@@ -240,10 +240,7 @@ public class Enemy : MonoBehaviour
         if (_canAttack)
         {
             // Полная остановка движения врага и отключение агентства во время атаки
-            StopAgentMovement();
-
-            // Поворачиваем врага лицом к игроку
-            // transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
+            // StopAgentMovement();
 
             // Наносим урон игроку
             int currentEnemyDamage = GetRandomEnemyDamage();
@@ -342,9 +339,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-
-
-    // Этот метод вызывается, когда объект выходит из триггера
     private void OnTriggerExit(Collider other)
     {
         // Проверяем, что это за объект (например, если нужно проверить по тэгу)

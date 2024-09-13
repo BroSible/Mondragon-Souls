@@ -6,6 +6,9 @@ using UnityEngine;
 public class CameraRotation : MonoBehaviour
 {
     public CinemachineVirtualCamera playerCamera;
+    public Enemy enemy;
+    public Player player;
+
     public float sensitivity = 500f;                // Чувствительность вращения
     private float rotationX = 0f;
     private float rotationY = 0f;
@@ -19,7 +22,7 @@ public class CameraRotation : MonoBehaviour
         // Сохраняем начальное вращение камеры
         Vector3 initialRotation = cameraPos.rotation.eulerAngles;
         rotationX = initialRotation.x; 
-        rotationY = initialRotation.y; 
+        rotationY = initialRotation.y;
     }
 
     void Update()
@@ -35,6 +38,11 @@ public class CameraRotation : MonoBehaviour
         else
         {
             Cursor.lockState = CursorLockMode.None;
+        }
+
+        if(player.isDead)
+        {
+            playerCamera.Follow = enemy.transform;
         }
     }
 }

@@ -7,19 +7,19 @@ public class Player : MonoBehaviour
 {
     [Header("Characteristics")]
     [SerializeField] private int _playerHealthPoints;
-    [SerializeField] private int _minPlayerDamage = 1;
-    [SerializeField] private int _maxPlayerDamage = 7;
-    [SerializeField] private float _attackRange = 5f;
+
 
     // private int _currentPlayerDamage = System.Random.Range(_minPlayerDamage, _maxPlayerDamage + 1);
 
-    [SerializeField] protected bool _enemyInAttackRange;
+  
     public LayerMask Ground, Rock;
+
+    public PlayerAttack playerAttack;
 
     public Enemy enemy;
     protected Rigidbody _rgbd;
     protected Collider _collider;
-    private System.Random _playerRandom = new System.Random();
+    
 
     public enum PlayerState
     {
@@ -30,6 +30,8 @@ public class Player : MonoBehaviour
         deathState,
         takingEnemyDamage
     }
+
+    public bool isDead;
 
     public PlayerState currentPlayerState;
 
@@ -60,7 +62,7 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.inAttack:
-                EnemyAttacking();
+                playerAttack.Attack();
                 break;
 
             case PlayerState.inDefense:
@@ -68,6 +70,7 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.deathState:
+                isDead=true;
                 Destroy(gameObject);
                 break;
             
@@ -83,12 +86,12 @@ public class Player : MonoBehaviour
 
     protected virtual void CheckDistanceBetweenPlayerAndEnemy()
     {
-        if (_enemyInAttackRange)
-        {
-            currentPlayerState = PlayerState.inAttack;
+        // if (_enemyInAttackRange)
+        // {
+        //     currentPlayerState = PlayerState.inAttack;
 
-            Debug.Log($"Игрок атакует врага!");
-        }
+        //     Debug.Log($"Игрок атакует врага!");
+        // }
     }
 
     void Update()
@@ -96,18 +99,7 @@ public class Player : MonoBehaviour
 
     }
 
-    public int GetRandomPlayerDamage()
-    {
-        return _playerRandom.Next(_minPlayerDamage, _maxPlayerDamage + 1);
-    }
-
-    public void EnemyAttacking()
-    {
-        int currentPlayerDamage = GetRandomPlayerDamage();
-        enemy.TakingPlayerDamage(currentPlayerDamage);
-
-        Debug.Log($"Игрок наносит врагу {currentPlayerDamage} ед. урона!");
-    }
+    
 
     public void TakingEnemyDamage(int enemyDamagePoints)
     {

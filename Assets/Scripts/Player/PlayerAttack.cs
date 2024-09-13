@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     public Weapon currentWeapon; // ScriptableObject для текущего оружия
-    private float attackDelay; // Время задержки атаки
+    private float _attackDelay; // Время задержки атаки
     public bool isAttacking = false;
     private CameraCursor cameraCursor;
     private Animator animator;

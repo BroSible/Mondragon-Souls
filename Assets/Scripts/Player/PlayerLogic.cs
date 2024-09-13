@@ -3,20 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class PlayerLogic : MonoBehaviour
 {
     [Header("Characteristics")]
-    [SerializeField] private int _playerHealthPoints;
-    [SerializeField] private int _minPlayerDamage = 1;
-    [SerializeField] private int _maxPlayerDamage = 7;
+    [SerializeField] private float _playerHealthPoints;
+    static private float _playerHealth;
+    [SerializeField] private float _minPlayerDamage = 1;
+    [SerializeField] private float _maxPlayerDamage = 7;    
     [SerializeField] private float _attackRange = 5f;
+    [SerializeField] private float _stamina = 100f;
+    [SerializeField] private float _maxStamina = 100f;
 
-    // private int _currentPlayerDamage = System.Random.Range(_minPlayerDamage, _maxPlayerDamage + 1);
 
     [SerializeField] protected bool _enemyInAttackRange;
-    public LayerMask Ground, Rock;
-
-    public Enemy enemy;
+    public LayerMask Ground;
     protected Rigidbody _rgbd;
     protected Collider _collider;
     private System.Random _playerRandom = new System.Random();
@@ -31,7 +31,7 @@ public class Player : MonoBehaviour
         takingEnemyDamage
     }
 
-    public PlayerState currentPlayerState;
+    public static PlayerState currentPlayerState;
 
     protected virtual void Awake()
     {
@@ -42,6 +42,8 @@ public class Player : MonoBehaviour
     protected virtual void Start()
     {
         currentPlayerState = PlayerState.inAdventurous;
+
+        _playerHealth = _playerHealthPoints;
     }
 
     protected virtual void FixedUpdate()
@@ -64,15 +66,15 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.inDefense:
-            // Здесь должен вызываться метод, в котором описана блокировка атаки игрока противником
+                // Здесь должен вызываться метод, в котором описана блокировка атаки игрока противником
                 break;
 
             case PlayerState.deathState:
                 Destroy(gameObject);
                 break;
-            
+
             case PlayerState.takingEnemyDamage:
-                enemy.PlayerAttacking();
+                // добавить
                 break;
 
             default:
@@ -96,30 +98,29 @@ public class Player : MonoBehaviour
 
     }
 
-    public int GetRandomPlayerDamage()
+    public void EnemyAttacking() // delete
     {
-        return _playerRandom.Next(_minPlayerDamage, _maxPlayerDamage + 1);
-    }
-
-    public void EnemyAttacking()
-    {
-        int currentPlayerDamage = GetRandomPlayerDamage();
-        enemy.TakingPlayerDamage(currentPlayerDamage);
+        float currentPlayerDamage = _minPlayerDamage;
 
         Debug.Log($"Игрок наносит врагу {currentPlayerDamage} ед. урона!");
     }
 
-    public void TakingEnemyDamage(int enemyDamagePoints)
+    public static void TakeDamage(float enemyDamagePoints)
     {
-        _playerHealthPoints -= enemyDamagePoints;
+        _playerHealth -= enemyDamagePoints;
 
-        Debug.Log($"Текущее здоровье игрока: {_playerHealthPoints} ед.");
+        Debug.Log($"Текущее здоровье игрока: {_playerHealth} ед.");
 
-        if (_playerHealthPoints <= 0)
+        if (_playerHealth <= 0)
         {
             currentPlayerState = PlayerState.deathState;
-
+            
             Debug.Log($"Игрок погибает!");
+        }
+
+        else
+        {
+            //СЮда добавить звук получения урона
         }
     }
 }

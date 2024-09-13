@@ -7,40 +7,40 @@ using System;
 public class Enemy : MonoBehaviour
 {
     [Header("Characteristics")]
-    [SerializeField] private int _enemyHealthPoints;
-    [SerializeField] private int _minEnemyDamage;
-    [SerializeField] private int _maxEnemyDamage;
-
-    [SerializeField] private float _attackRange = 1f;
-    [SerializeField] private float _chaseRange = 3f;
+    [SerializeField] protected float _enemyHealthPoints;
+    [SerializeField] protected float _damage = 2f;
+    [SerializeField] protected float _attackRange = 1f;
+    [SerializeField] protected float _chaseRange = 3f;
     [SerializeField] protected float _patrolPointRange = 15f;
+
+    [SerializeField] protected Animator _animator;
+
 
     [Header("Patroling")]
     protected Vector3 _currentPatrolPoint;
     [SerializeField] protected bool _isPatrolPointSet;
 
-    [SerializeField] private float _patrolInterval = 5f;
+    [SerializeField] protected float _patrolInterval = 5f;
     [SerializeField] protected bool _isAlreadyAttacked;
     [SerializeField] protected bool _playerInChaseRange, _playerInAttackRange;
     [SerializeField] protected bool _hasBeenTargeted;
 
-    [Header("Navigation")]
-    private NavMeshAgent _agent;
-    public LayerMask Ground, Player, Rock;
 
-    public Player player;
+    [Header("Navigation")]
+    protected NavMeshAgent _agent;
+    public LayerMask Ground, Player;
+
     protected Rigidbody _rgbd;
     protected Collider _collider;
     protected Transform _target;
 
-    private System.Random _enemyRandom = new System.Random();
 
     [Header("Movement Settings")]
-    [SerializeField] private float _patrolSpeed = 3f; // Скорость патрулирования
-    [SerializeField] private float _chaseSpeed = 5f;  // Скорость преследования
+    [SerializeField] protected float _patrolSpeed = 3f; // Скорость патрулирования
+    [SerializeField] protected float _chaseSpeed = 5f;  // Скорость преследования
 
     // Задержка перед возможностью следующей атаки
-    [SerializeField] private float _attackCooldown = 3f; // Время перезарядки
+    [SerializeField] protected float _attackCooldown = 3f; // Время перезарядки
     private bool _canAttack = true; // Может ли враг атаковать
 
     public enum EnemyState
@@ -76,8 +76,7 @@ public class Enemy : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
         _rgbd = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
-
-        _agent.angularSpeed = 360f; // Быстрая угловая скорость для плавных поворотов
+        _animator = GetComponent<Animator>();
     }
 
     protected virtual void Start()
@@ -102,26 +101,26 @@ public class Enemy : MonoBehaviour
         _playerInChaseRange = Physics.CheckSphere(transform.position, _chaseRange, Player);
         _playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
 
-        CheckDistanceBetweenPlayerAndEnemy();
         UpdateEnemyState();
 
         Debug.Log($"Current enemy state: {currentEnemyState}");
 
+
         switch (currentEnemyState)
         {
             case EnemyState.inPatrolling:
+
                 Patrolling();
+                _agent.speed = _patrolSpeed;
                 break;
 
             case EnemyState.inChasing:
                 PlayerChasing();
+                _agent.speed = _chaseSpeed;
                 break;
 
             case EnemyState.inAttack:
-                if (_canAttack)
-                {
-                    PlayerAttacking();
-                }
+                PlayerAttacking();
                 break;
 
             case EnemyState.deathState:
@@ -129,7 +128,7 @@ public class Enemy : MonoBehaviour
                 break;
 
             case EnemyState.takingPlayerDamage:
-                // player.EnemyAttacking();
+                // тут добавить какую-нибудь interesting logic
                 break;
 
             default:
@@ -158,17 +157,6 @@ public class Enemy : MonoBehaviour
                 Debug.Log("Враг патрулирует территорию.");
             }
         }
-
-        AdjustMovementSpeed();
-    }
-
-    protected virtual void CheckDistanceBetweenPlayerAndEnemy()
-    {
-        if (_playerInChaseRange)
-        {
-            currentEnemyState = EnemyState.inChasing;
-            Debug.Log("Враг заметил игрока!");
-        }
     }
 
     protected virtual void Patrolling()
@@ -176,6 +164,7 @@ public class Enemy : MonoBehaviour
         if (!_isPatrolPointSet)
         {
             SearchPatrolPoint();
+            
         }
         else
         {
@@ -192,99 +181,70 @@ public class Enemy : MonoBehaviour
 
     protected virtual void SearchPatrolPoint()
     {
+        
         NavMeshHit hit;
-        NavMeshQueryFilter filter = new NavMeshQueryFilter();
-
-        filter.areaMask = NavMesh.AllAreas & ~Rock.value;
         Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
 
-        if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, filter))
+        if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, NavMesh.AllAreas)) // Проблема тут
         {
             _currentPatrolPoint = hit.position;
+            Debug.Log(_currentPatrolPoint);
             _isPatrolPointSet = true;
         }
     }
 
     protected virtual void PlayerChasing()
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, _target.position);
-
-        if (distanceToPlayer > _attackRange)
+        if (_playerInChaseRange)
         {
-            // Разрешаем агенту двигаться к игроку, если он вне зоны атаки
             _agent.isStopped = false;
             _agent.SetDestination(_target.position);
         }
-        else
+        else if (_playerInAttackRange)
         {
-            // Останавливаем врага при приближении к игроку на расстояние атаки
-            // StopAgentMovement();
             currentEnemyState = EnemyState.inAttack;
         }
-
-        // Переход в патрулирование, если игрок вне зоны преследования
-        if (!_playerInChaseRange)
+        else if (!_playerInChaseRange) // Переход в патрулирование, если игрок вне зоны преследования
         {
             currentEnemyState = EnemyState.inPatrolling;
             Debug.Log("Игрок вышел за пределы радиуса преследования. Враг возвращается к патрулированию.");
         }
     }
 
-    public int GetRandomEnemyDamage()
-    {
-        return _enemyRandom.Next(_minEnemyDamage, _maxEnemyDamage + 1);
-    }
 
     public virtual void PlayerAttacking()
     {
+        _agent.SetDestination(transform.position);
         if (_canAttack)
         {
-            // Полная остановка движения врага и отключение агентства во время атаки
-            // StopAgentMovement();
-
-            // Наносим урон игроку
-            int currentEnemyDamage = GetRandomEnemyDamage();
-            player.TakingEnemyDamage(currentEnemyDamage);
-            Debug.Log($"Враг наносит игроку {currentEnemyDamage} ед. урона!");
-
-            // Запускаем задержку перед следующей атакой
+            PlayerLogic.TakeDamage(_damage);
             StartCoroutine(AttackCooldown());
+            transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
         }
     }
 
-    public virtual void TakingPlayerDamage(int playerDamagePoints)
+    public virtual void TakingPlayerDamage(float playerDamagePoints)
     {
         _enemyHealthPoints -= playerDamagePoints;
         Debug.Log($"Текущее здоровье врага: {_enemyHealthPoints} ед.");
 
         if (_enemyHealthPoints <= 0)
         {
+            Death?.Invoke();
+            gameObject.tag = "Untagged";
+            Destroy(_collider);
+            StartCoroutine(C_OnDefeat());
             currentEnemyState = EnemyState.deathState;
             Debug.Log("Враг погибает!");
         }
     }
 
-    // Метод для изменения скорости врага в зависимости от его состояния
-    protected virtual void AdjustMovementSpeed()
+    protected IEnumerator AttackCooldown()   // Корутина для создания задержки между атаками
     {
-        switch (currentEnemyState)
-        {
-            case EnemyState.inPatrolling:
-                _agent.speed = _patrolSpeed;
-                break;
-            case EnemyState.inChasing:
-                _agent.speed = _chaseSpeed;
-                break;
-        }
-    }
+        _canAttack = false;
+        yield return new WaitForSeconds(_attackCooldown);
 
-    // Корутина для создания задержки между атаками
-    protected IEnumerator AttackCooldown()
-    {
-        _canAttack = false; // Отключаем возможность атаковать
-        yield return new WaitForSeconds(_attackCooldown); // Ждем время перезарядки атаки
-
-        _canAttack = true; // Возвращаем возможность атаковать
+        _canAttack = true;
 
         // После перезарядки враг снова оценивает состояние
         if (_playerInAttackRange)
@@ -294,59 +254,14 @@ public class Enemy : MonoBehaviour
         else
         {
             currentEnemyState = EnemyState.inChasing;
-            _agent.isStopped = false; // Возвращаем движение
+            _agent.isStopped = false;
         }
     }
 
-    // Метод для полной остановки движения врага
-    private void StopAgentMovement()
+    public virtual IEnumerator C_OnDefeat()  // для удаления тела через время   (временное средство, потом переделать)
     {
-        _agent.isStopped = true; // Останавливаем NavMesh агент
-        _agent.ResetPath(); // Сбрасываем текущий путь
-        _agent.velocity = Vector3.zero; // Обнуляем скорость
-
-        // Замораживаем физические движения врага для предотвращения тряски
-        _rgbd.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
-    }
-
-    // Метод для разблокировки физики после атаки или в состоянии преследования
-    private void UnlockMovement()
-    {
-        _rgbd.constraints = RigidbodyConstraints.None; // Разблокируем физику
-        _agent.isStopped = false; // Включаем NavMesh агент
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            // Debug.Log("Объект вошел в зону триггера: " + other.name);
-
-            //_agent.ResetPath();
-            // _rgbd.constraints = RigidbodyConstraints.FreezeAll; // Замораживает все движения и вращения
-            _agent.SetDestination(transform.position);
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        // Если вам нужно что-то делать, пока объект внутри триггера
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Объект находится внутри триггера: " + other.name);
-
-            _agent.SetDestination(transform.position);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        // Проверяем, что это за объект (например, если нужно проверить по тэгу)
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("Объект вышел из зоны триггера: " + other.name);
-
-            // _rgbd.constraints = RigidbodyConstraints.None;  // Возвращаем физику
-        }
+        float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationLength + 10f);
+        Destroy(gameObject);
     }
 }

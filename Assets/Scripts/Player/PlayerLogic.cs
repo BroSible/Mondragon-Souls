@@ -8,35 +8,35 @@ public class PlayerLogic : MonoBehaviour
     [Header("Characteristics")]
     [SerializeField] private float _playerHealthPoints;
     static private float _playerHealth;
-    [SerializeField] private float _minPlayerDamage = 1;
-    [SerializeField] private float _maxPlayerDamage = 7;    
-    [SerializeField] private float _attackRange = 5f;
     [SerializeField] private float _stamina = 100f;
     [SerializeField] private float _maxStamina = 100f;
-
-
-    [SerializeField] protected bool _enemyInAttackRange;
-    public LayerMask Ground;
+    public bool _isDead = false;
+    public static bool _isTakingDamage = false;
+    private PlayerController _playerController;
+    private PlayerAttack _playerAttack;
     protected Rigidbody _rgbd;
     protected Collider _collider;
-    private System.Random _playerRandom = new System.Random();
+    private Shield _currentShield;
+    private bool _damageEffectApplied = false; // Новая переменная для отслеживания применения эффекта урона
 
     public enum PlayerState
     {
         inAdventurous, // Базовое состояние игрока при изучении локации
-        inHealingState,
         inAttack,
-        inDefense, // Состояние защиты игрока щитом (или подобное)
+        inParry, 
         deathState,
-        takingEnemyDamage
+        takingDamage
     }
 
-    public static PlayerState currentPlayerState;
+    public PlayerState currentPlayerState;
 
     protected virtual void Awake()
     {
         _rgbd = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
+        _playerController = GetComponentInChildren<PlayerController>();
+        _playerAttack = GetComponentInChildren<PlayerAttack>();
+        _currentShield = GetComponentInChildren<Shield>();
     }
 
     protected virtual void Start()
@@ -48,33 +48,39 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        // _enemyInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
-
-        CheckDistanceBetweenPlayerAndEnemy();
-
+        UpdatePlayerState();
         switch (currentPlayerState)
         {
             case PlayerState.inAdventurous:
-                break;
-
-            case PlayerState.inHealingState:
-
+                if(_damageEffectApplied)
+                {
+                    _playerController.speed += 2f;
+                    _damageEffectApplied = false;
+                }
                 break;
 
             case PlayerState.inAttack:
-                EnemyAttacking();
                 break;
 
-            case PlayerState.inDefense:
-                // Здесь должен вызываться метод, в котором описана блокировка атаки игрока противником
+            case PlayerState.inParry:
+                ShieldParry(_currentShield);
                 break;
 
             case PlayerState.deathState:
+                _isDead = true;
                 Destroy(gameObject);
                 break;
 
-            case PlayerState.takingEnemyDamage:
-                // добавить
+            case PlayerState.takingDamage:
+                if (!_damageEffectApplied)
+                {
+                    _playerController.speed -= 2; 
+                    _damageEffectApplied = true;  
+                }
+                
+                StartCoroutine(ResetTakingDamage());
+                
+                Debug.Log("take damage");
                 break;
 
             default:
@@ -83,44 +89,47 @@ public class PlayerLogic : MonoBehaviour
         }
     }
 
-    protected virtual void CheckDistanceBetweenPlayerAndEnemy()
+    public void UpdatePlayerState()
     {
-        if (_enemyInAttackRange)
+        if(PlayerAttack._isAttacking)
         {
             currentPlayerState = PlayerState.inAttack;
-
-            Debug.Log($"Игрок атакует врага!");
         }
+
+        else if(_isTakingDamage)
+        {
+            currentPlayerState = PlayerState.takingDamage;
+        }
+
+        else if (_playerHealth <= 0)
+        {
+            currentPlayerState = PlayerState.deathState;
+        }
+
+        else if(Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null)
+        {
+            currentPlayerState = PlayerState.inParry;
+        }
+
     }
 
-    void Update()
+    public void ShieldParry(Shield shield)
     {
-
-    }
-
-    public void EnemyAttacking() // delete
-    {
-        float currentPlayerDamage = _minPlayerDamage;
-
-        Debug.Log($"Игрок наносит врагу {currentPlayerDamage} ед. урона!");
+        _playerAttack.isAttacking = false;
+        Debug.Log("Парирование");
     }
 
     public static void TakeDamage(float enemyDamagePoints)
     {
         _playerHealth -= enemyDamagePoints;
+        _isTakingDamage = true;
 
-        Debug.Log($"Текущее здоровье игрока: {_playerHealth} ед.");
+    }
 
-        if (_playerHealth <= 0)
-        {
-            currentPlayerState = PlayerState.deathState;
-            
-            Debug.Log($"Игрок погибает!");
-        }
-
-        else
-        {
-            //СЮда добавить звук получения урона
-        }
+    public IEnumerator ResetTakingDamage()
+    {
+        yield return new WaitForSeconds(2f);
+        _isTakingDamage = false;
+        currentPlayerState = PlayerState.inAdventurous;
     }
 }

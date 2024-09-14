@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.42297482, g: 0.45380133, b: 0.47635496, a: 1}
+  m_IndirectSpecularColor: {r: 0.42297533, g: 0.4538024, b: 0.47635573, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -365,7 +365,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2d9fdcd3da238864e9170349d4730f31, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2d9fdcd3da238864e9170349d4730f31, type: 3}
       propertyPath: m_TagString
@@ -915,7 +915,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2389538849530911561, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -951,6 +951,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8391222552659086748, guid: 098253ad81d698643afea593e6f77262, type: 3}
       insertIndex: -1
       addedObject: {fileID: 898333481}
+    - targetCorrespondingSourceObject: {fileID: -8391222552659086748, guid: 098253ad81d698643afea593e6f77262, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 898333485}
   m_SourcePrefab: {fileID: 100100000, guid: 098253ad81d698643afea593e6f77262, type: 3}
 --- !u!64 &195462499
 MeshCollider:
@@ -1408,7 +1411,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2d9fdcd3da238864e9170349d4730f31, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2d9fdcd3da238864e9170349d4730f31, type: 3}
       propertyPath: m_TagString
@@ -1745,7 +1748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyHealthPoints: 100
-  _damage: 3
+  _damage: 2
   _attackRange: 1
   _chaseRange: 7
   _patrolPointRange: 15
@@ -3206,7 +3209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyHealthPoints: 100
-  _damage: 0
+  _damage: 2
   _attackRange: 0.8
   _chaseRange: 5
   _patrolPointRange: 15
@@ -3573,6 +3576,19 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5495902117074765545, guid: 098253ad81d698643afea593e6f77262, type: 3}
+--- !u!114 &898333485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898333477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 285a545275df3654c917e87ecc45d65f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weapon: {fileID: 11400000, guid: be19547f0302db14d966a9e72cad3306, type: 2}
 --- !u!1 &903918528 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -7029948723529949830, guid: 9574e865fdab3064686904af5596b69f, type: 3}
@@ -3734,14 +3750,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3685b9f8c57ba54390f4eaea792b869, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _weaponHolder: {fileID: 0}
   currentWeapon: {fileID: 0}
-  enemy: {fileID: 0}
-  _minPlayerDamage: 1
-  _maxPlayerDamage: 7
-  _attackRange: 5
-  _enemyInAttackRange: 0
   isAttacking: 0
+  _weaponHolder: {fileID: 0}
 --- !u!114 &938531115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3767,7 +3778,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90796b0e2e96e044e8f7095a4eb207cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 4
+  speed: 6
   gravity: 20
   cameraTransform: {fileID: 1664112600}
 --- !u!4 &938531120 stripped
@@ -3830,6 +3841,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 1664112601}
+  player: {fileID: 938531124}
   sensitivity: 500
 --- !u!114 &938531124
 MonoBehaviour:
@@ -3844,15 +3856,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerHealthPoints: 100
-  _minPlayerDamage: 1
-  _maxPlayerDamage: 7
-  _attackRange: 5
   _stamina: 100
   _maxStamina: 100
-  _enemyInAttackRange: 0
-  Ground:
-    serializedVersion: 2
-    m_Bits: 512
+  _isDead: 0
+  currentPlayerState: 0
 --- !u!1001 &944458537
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3923,7 +3930,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 01dea8e6bcf5f1c49b9be4a25645e5d3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4307,7 +4314,7 @@ MeshCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
@@ -5233,7 +5240,7 @@ Transform:
   m_GameObject: {fileID: 1285424596}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.664, z: 0.103}
+  m_LocalPosition: {x: 0.133, y: 1.7891, z: 0.1462}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

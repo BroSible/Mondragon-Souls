@@ -4,8 +4,8 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     public Weapon currentWeapon; // ScriptableObject для текущего оружия
-    private float _attackDelay; // Время задержки атаки
     public bool isAttacking = false;
+    public static bool _isAttacking = false;
     private CameraCursor cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
@@ -53,14 +53,21 @@ public class PlayerAttack : MonoBehaviour
     void Attack()
     {
         isAttacking = true;
+        _isAttacking = true;
         animator.SetBool("isAttacking", true);
         cameraCursor.enabled = false;
         StartCoroutine(ResetAttack());
     }
 
+    private void Repost()
+    {
+
+    }
+
     void EnhancedAttack()
     {
         Debug.Log("Сделана сильная атака");
+        // добавить логику усиленной атаки
     }
 
     public IEnumerator ResetAttack()
@@ -68,6 +75,7 @@ public class PlayerAttack : MonoBehaviour
         yield return new WaitForSeconds(currentWeapon.attackDelay);
         cameraCursor.enabled = true;
         isAttacking = false;
+        _isAttacking = false;
     }
 
     public void SetWeapon(Weapon newWeapon) // метод для обновления текущего оружия (для инвентаря)

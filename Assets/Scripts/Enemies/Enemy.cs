@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected float _attackRange = 1f;
     [SerializeField] protected float _chaseRange = 3f;
     [SerializeField] protected float _patrolPointRange = 15f;
-
+    
     [SerializeField] protected Animator _animator;
 
 
@@ -103,9 +103,6 @@ public class Enemy : MonoBehaviour
 
         UpdateEnemyState();
 
-        Debug.Log($"Current enemy state: {currentEnemyState}");
-
-
         switch (currentEnemyState)
         {
             case EnemyState.inPatrolling:
@@ -144,17 +141,14 @@ public class Enemy : MonoBehaviour
             if (_playerInAttackRange)
             {
                 currentEnemyState = EnemyState.inAttack;
-                Debug.Log("Враг атакует игрока!");
             }
             else if (_playerInChaseRange)
             {
                 currentEnemyState = EnemyState.inChasing;
-                Debug.Log("Враг преследует игрока!");
             }
             else
             {
                 currentEnemyState = EnemyState.inPatrolling;
-                Debug.Log("Враг патрулирует территорию.");
             }
         }
     }
@@ -207,7 +201,6 @@ public class Enemy : MonoBehaviour
         else if (!_playerInChaseRange) // Переход в патрулирование, если игрок вне зоны преследования
         {
             currentEnemyState = EnemyState.inPatrolling;
-            Debug.Log("Игрок вышел за пределы радиуса преследования. Враг возвращается к патрулированию.");
         }
     }
 
@@ -235,7 +228,6 @@ public class Enemy : MonoBehaviour
             Destroy(_collider);
             StartCoroutine(C_OnDefeat());
             currentEnemyState = EnemyState.deathState;
-            Debug.Log("Враг погибает!");
         }
     }
 

@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
             moveDirection *= speed;
 
 
-            if (moveDirection.magnitude > 0)
+            if (moveDirection.magnitude > 0 && !PlayerLogic._isParrying)
             {
                 animator.SetBool("isWalking", true);
             }
@@ -57,13 +57,16 @@ public class PlayerController : MonoBehaviour
         controller.Move(moveDirection * Time.deltaTime);
 
         Vector3 horizontalMove = new Vector3(moveDirection.x, 0, moveDirection.z);
-        if (horizontalMove == Vector3.zero && !playerAttack.isAttacking)
+        if (horizontalMove == Vector3.zero && !playerAttack.isAttacking && !PlayerLogic._isParrying)
         {
             animator.SetBool("isIdle", true);
         }
+
         else
         {
             animator.SetBool("isIdle", false);
         }
+
+
     }
 }

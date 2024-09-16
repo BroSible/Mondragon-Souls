@@ -11,4 +11,5 @@ public class Shield : ScriptableObject
     public float protectionFactor; // коэффициент защиты
     public float rollbackTime;
     public string description;
+    public float resetParry;
 }

@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected float _patrolPointRange = 15f;
     
     [SerializeField] protected Animator _animator;
+    public static bool _isAttack = false;
 
 
     [Header("Patroling")]
@@ -100,6 +101,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        Debug.Log("is attack" + _isAttack);
         _playerInChaseRange = Physics.CheckSphere(transform.position, _chaseRange, Player);
         _playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
 
@@ -212,6 +214,7 @@ public class Enemy : MonoBehaviour
         _agent.SetDestination(transform.position);
         if (_canAttack)
         {
+            _isAttack = true;
             PlayerLogic.TakeDamage(_damage);
             StartCoroutine(AttackCooldown());
             transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
@@ -237,7 +240,7 @@ public class Enemy : MonoBehaviour
     {
         _canAttack = false;
         yield return new WaitForSeconds(_attackCooldown);
-
+        _isAttack = false;
         _canAttack = true;
 
         // После перезарядки враг снова оценивает состояние

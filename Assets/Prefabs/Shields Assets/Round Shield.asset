@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f53681e7ddd12e640938876ef180d892, type: 3}
   m_Name: Round Shield
   m_EditorClassIdentifier: 
-  framePeriod: 300
+  framePeriod: 0.3
   type: Light shield
   protectionFactor: 80
-  rollbackTime: 0
+  rollbackTime: 20
   description: 
+  resetParry: 0

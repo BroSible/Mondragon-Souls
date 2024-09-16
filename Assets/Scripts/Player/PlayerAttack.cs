@@ -9,6 +9,7 @@ public class PlayerAttack : MonoBehaviour
     private CameraCursor cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
+    public Shield_holder _shieldHolder;
 
 
     void Start()
@@ -20,6 +21,8 @@ public class PlayerAttack : MonoBehaviour
     void Update()
     {
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
+        _shieldHolder = GetComponentInChildren<Shield_holder>();
+
         #region смена оружия
         if (_weaponHolder != null)
         {
@@ -42,11 +45,15 @@ public class PlayerAttack : MonoBehaviour
             EnhancedAttack();
         }
 
+        else if(Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic.successfulParry)
+        {
+            Repost();
+        }
+
         else
         {
             animator.SetBool("isAttacking", false);
         }
-
         
     }
 
@@ -61,7 +68,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void Repost()
     {
-
+        animator.SetBool("isReposting", true);
+        cameraCursor.enabled = false;
+        StartCoroutine(ResetAttack());
     }
 
     void EnhancedAttack()

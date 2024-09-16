@@ -4,17 +4,20 @@ using System.Collections.Generic;
 
 public class CameraRaycastTransparency : MonoBehaviour
 {
-    public Transform player;        
-    public LayerMask obstacleLayer; 
-    public float fadeSpeed = 2f;    
-    public Color rayColor = Color.red; 
+    public Transform player;
+    public LayerMask obstacleLayer;
+    public float fadeSpeed = 2f;
+    public Color rayColor = Color.red;
 
     private List<FadeObject> fadeObjects = new List<FadeObject>(); // Список всех объектов, которые скрываем
 
     void Update()
     {
-        HandleRaycast();
-        UpdateFadeObjects();
+        if (player != null)
+        {
+            HandleRaycast();
+            UpdateFadeObjects();
+        }
     }
 
     void HandleRaycast()
@@ -41,7 +44,7 @@ public class CameraRaycastTransparency : MonoBehaviour
                 if (fadeObject == null)
                 {
                     Material newMaterial = new Material(hitRenderer.material);
-                    newMaterial.shader = hitRenderer.material.shader; 
+                    newMaterial.shader = hitRenderer.material.shader;
                     hitRenderer.material = newMaterial;
 
                     fadeObject = new FadeObject(hitRenderer, newMaterial);

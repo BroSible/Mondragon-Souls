@@ -6,6 +6,7 @@ using UnityEngine;
 public class CameraRotation : MonoBehaviour
 {
     public CinemachineVirtualCamera playerCamera;
+    public PlayerLogic player;
     public float sensitivity = 500f;                // Чувствительность вращения
     private float rotationX = 0f;
     private float rotationY = 0f;
@@ -19,7 +20,7 @@ public class CameraRotation : MonoBehaviour
         // Сохраняем начальное вращение камеры
         Vector3 initialRotation = cameraPos.rotation.eulerAngles;
         rotationX = initialRotation.x; 
-        rotationY = initialRotation.y; 
+        rotationY = initialRotation.y;
     }
 
     void Update()

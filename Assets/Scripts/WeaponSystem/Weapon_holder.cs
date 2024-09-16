@@ -11,12 +11,11 @@ public class Weapon_holder : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("попал по врагу");
         if(other.CompareTag("Enemy"))
         {
             Enemy enemy = other.GetComponent<Enemy>();
             
-            if (enemy != null)
+            if (enemy != null && PlayerAttack._isAttacking)
             {
                 enemy.TakingPlayerDamage(weapon.damage);
                 Debug.Log($"Enemy take {weapon.damage} damage");

@@ -17,6 +17,7 @@ public class PlayerLogic : MonoBehaviour
     protected Rigidbody _rgbd;
     protected Collider _collider;
     private Shield _currentShield;
+    public static bool _isParrying = false;
     private bool _damageEffectApplied = false; // Новая переменная для отслеживания применения эффекта урона
 
     public enum PlayerState
@@ -36,7 +37,7 @@ public class PlayerLogic : MonoBehaviour
         _collider = GetComponent<Collider>();
         _playerController = GetComponentInChildren<PlayerController>();
         _playerAttack = GetComponentInChildren<PlayerAttack>();
-        _currentShield = GetComponentInChildren<Shield>();
+        _currentShield = GetComponentInParent<Shield>();
     }
 
     protected virtual void Start()
@@ -63,7 +64,7 @@ public class PlayerLogic : MonoBehaviour
                 break;
 
             case PlayerState.inParry:
-                ShieldParry(_currentShield);
+                ShieldParry(_currentShield, Enemy._enemyDamage);
                 break;
 
             case PlayerState.deathState:
@@ -79,8 +80,6 @@ public class PlayerLogic : MonoBehaviour
                 }
                 
                 StartCoroutine(ResetTakingDamage());
-                
-                Debug.Log("take damage");
                 break;
 
             default:
@@ -113,9 +112,10 @@ public class PlayerLogic : MonoBehaviour
 
     }
 
-    public void ShieldParry(Shield shield)
+    public void ShieldParry(Shield shield, float enemyDamagePoints)
     {
         _playerAttack.isAttacking = false;
+        _playerHealth -= enemyDamagePoints * (shield.protectionFactor/100);
         Debug.Log("Парирование");
     }
 
@@ -130,6 +130,13 @@ public class PlayerLogic : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         _isTakingDamage = false;
+        currentPlayerState = PlayerState.inAdventurous;
+    }
+
+    public IEnumerator ResetParry()
+    {
+        yield return new WaitForSeconds(_currentShield.rollbackTime);
+        _isParrying = false;
         currentPlayerState = PlayerState.inAdventurous;
     }
 }

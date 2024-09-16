@@ -9,5 +9,6 @@ public class Shield : ScriptableObject
     public float framePeriod; // промежуток времени, за который можно парировать атаку врага (в миллесекундах)
     public string type;
     public float protectionFactor; // коэффициент защиты
+    public float rollbackTime;
     public string description;
 }

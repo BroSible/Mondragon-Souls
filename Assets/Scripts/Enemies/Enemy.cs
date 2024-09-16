@@ -9,6 +9,7 @@ public class Enemy : MonoBehaviour
     [Header("Characteristics")]
     [SerializeField] protected float _enemyHealthPoints;
     [SerializeField] protected float _damage = 2f;
+    public static float _enemyDamage; // для ссылки
     [SerializeField] protected float _attackRange = 1f;
     [SerializeField] protected float _chaseRange = 3f;
     [SerializeField] protected float _patrolPointRange = 15f;
@@ -22,7 +23,7 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] protected float _patrolInterval = 5f;
     [SerializeField] protected bool _isAlreadyAttacked;
-    [SerializeField] protected bool _playerInChaseRange, _playerInAttackRange;
+    [SerializeField] public bool _playerInChaseRange, _playerInAttackRange;
     [SerializeField] protected bool _hasBeenTargeted;
 
 
@@ -77,6 +78,7 @@ public class Enemy : MonoBehaviour
         _rgbd = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _animator = GetComponent<Animator>();
+        _enemyDamage = _damage;
     }
 
     protected virtual void Start()

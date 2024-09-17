@@ -11,6 +11,7 @@ public class Weapon_holder : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
         if(other.CompareTag("Enemy"))
         {
             Enemy enemy = other.GetComponent<Enemy>();
@@ -19,6 +20,10 @@ public class Weapon_holder : MonoBehaviour
             {
                 enemy.TakingPlayerDamage(weapon.damage);
                 Debug.Log($"Enemy take {weapon.damage} damage");
+            }
+
+            else{
+                Debug.Log("??");
             }
         }
         

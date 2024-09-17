@@ -68,6 +68,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void Repost()
     {
+        isAttacking = true;
+        _isAttacking = true;
         animator.SetBool("isReposting", true);
         animator.SetBool("isIdle", false);
         cameraCursor.enabled = false;
@@ -83,6 +85,7 @@ public class PlayerAttack : MonoBehaviour
     public IEnumerator ResetAttack()
     {
         yield return new WaitForSeconds(currentWeapon.attackDelay);
+        animator.SetBool("isReposting", false);
         cameraCursor.enabled = true;
         isAttacking = false;
         _isAttacking = false;

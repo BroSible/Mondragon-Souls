@@ -15,6 +15,6 @@ MonoBehaviour:
   framePeriod: 0.3
   type: Light shield
   protectionFactor: 80
-  rollbackTime: 20
+  rollbackTime: 1
   description: 
   resetParry: 0

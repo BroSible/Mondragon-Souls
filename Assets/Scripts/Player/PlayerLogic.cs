@@ -26,6 +26,7 @@ public class PlayerLogic : MonoBehaviour
     {
         inAdventurous, // Базовое состояние игрока при изучении локации
         inAttack,
+        inParry,
         deathState,
         takingDamage
     }
@@ -51,7 +52,6 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Debug.Log(_isParrying);
         _playerHealthPoints = _playerHealth;
         UpdatePlayerState();
         switch (currentPlayerState)
@@ -81,6 +81,7 @@ public class PlayerLogic : MonoBehaviour
                 
                 StartCoroutine(ResetTakingDamage());
                 break;
+        
 
             default:
                 Debug.Log("Non-existent enemy state!");
@@ -108,6 +109,8 @@ public class PlayerLogic : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
         {
             _isParrying = true;
+
+            _animator.SetBool("isParrying", true);
             ShieldParry(_currentShield, Enemy._enemyDamage);
         }
 
@@ -116,7 +119,6 @@ public class PlayerLogic : MonoBehaviour
     public void ShieldParry(Shield_holder currentShield, float enemyDamagePoints)
     {
 
-        _animator.SetBool("isParrying", true);
 
         if(currentPlayerState == PlayerState.takingDamage && Enemy._isAttack)
         {

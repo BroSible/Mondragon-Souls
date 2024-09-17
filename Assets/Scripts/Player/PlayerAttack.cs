@@ -69,6 +69,7 @@ public class PlayerAttack : MonoBehaviour
     private void Repost()
     {
         animator.SetBool("isReposting", true);
+        animator.SetBool("isIdle", false);
         cameraCursor.enabled = false;
         StartCoroutine(ResetAttack());
     }

@@ -69,6 +69,9 @@ public class Enemy : MonoBehaviour
     public delegate void DeathEventHandler();
     public event DeathEventHandler Death;
 
+    public delegate void IdleEventHandler();
+    public event IdleEventHandler Idle;
+
     public delegate void HitEventHandler();
     public event HitEventHandler Hit;
     #endregion Events
@@ -101,7 +104,6 @@ public class Enemy : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Debug.Log("is attack" + _isAttack);
         _playerInChaseRange = Physics.CheckSphere(transform.position, _chaseRange, Player);
         _playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
 
@@ -166,6 +168,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
+            Run?.Invoke();
             _agent.SetDestination(_currentPatrolPoint);
         }
 
@@ -196,6 +199,7 @@ public class Enemy : MonoBehaviour
         if (_playerInChaseRange)
         {
             _agent.isStopped = false;
+            Run?.Invoke();
             _agent.SetDestination(_target.position);
         }
         else if (_playerInAttackRange)
@@ -214,6 +218,7 @@ public class Enemy : MonoBehaviour
         _agent.SetDestination(transform.position);
         if (_canAttack)
         {
+            Attack?.Invoke(); 
             _isAttack = true;
             PlayerLogic.TakeDamage(_damage);
             StartCoroutine(AttackCooldown());

@@ -13,12 +13,14 @@ public class SpiderVillager : Enemy
     protected override void Start()
     {
         base.Start();
+        Attack += PlayAttackAnimation;
+        Run += PlayRunAnimation;
+        Idle += PlayIdleAnimation;
     }
 
     protected override void SearchPatrolPoint()
     {
         NavMeshHit hit;
-        // NavMeshQueryFilter filter = new NavMeshQueryFilter();
 
         Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
 
@@ -82,5 +84,20 @@ public class SpiderVillager : Enemy
             currentEnemyState = EnemyState.inPatrolling;
             Debug.Log("Игрок вышел за пределы радиуса преследования. Враг возвращается к патрулированию.");
         }
+    }
+
+    private void PlayAttackAnimation()
+    {
+        _animator.Play("Attack");
+    }
+
+    private void PlayRunAnimation()
+    {
+        _animator.Play("run");
+    }
+
+    private void PlayIdleAnimation()
+    {
+        _animator.Play("Idle");
     }
 }

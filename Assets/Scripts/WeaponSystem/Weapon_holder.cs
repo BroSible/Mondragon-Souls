@@ -22,7 +22,8 @@ public class Weapon_holder : MonoBehaviour
                 Debug.Log($"Enemy take {weapon.damage} damage");
             }
 
-            else{
+            else
+            {
                 Debug.Log("??");
             }
         }

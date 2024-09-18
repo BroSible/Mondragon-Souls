@@ -14,7 +14,4 @@ public class Weapon : ScriptableObject
     public string description;
     public float damage;
 
-    [Header("Visual")]
-    public GameObject modelMesh;
-    public Vector3 displayScale = new Vector3(1f, 1f, 1f); // Добавлено поле для масштаба отображения
 }

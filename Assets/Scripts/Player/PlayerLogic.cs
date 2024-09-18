@@ -6,8 +6,20 @@ using UnityEngine;
 public class PlayerLogic : MonoBehaviour
 {
     [Header("Characteristics")]
-    [SerializeField] private float _playerHealthPoints;
-    static private float _playerHealth;
+    [SerializeField] private float _totalPlayerHealthPoints;
+    static private float _totalPlayerHealth;
+
+    [SerializeField] public float headHealthPoints;
+
+    [SerializeField] public float leftArmHealthPoints;
+    [SerializeField] public float rightArmHealthPoints;
+
+    [SerializeField] public float leftLegHealthPoints;
+    [SerializeField] public float rightLegHealthPoints;
+
+    [SerializeField] public float bodyHealthPoints;
+
+
     [SerializeField] private float _stamina = 100f;
     [SerializeField] private float _maxStamina = 100f;
     public bool _isDead = false;
@@ -24,7 +36,7 @@ public class PlayerLogic : MonoBehaviour
     {
         inAdventurous, // Базовое состояние игрока при изучении локации
         inAttack,
-        inParry, 
+        inParry,
         deathState,
         takingDamage
     }
@@ -44,7 +56,7 @@ public class PlayerLogic : MonoBehaviour
     {
         currentPlayerState = PlayerState.inAdventurous;
 
-        _playerHealth = _playerHealthPoints;
+        _totalPlayerHealth = _totalPlayerHealthPoints;
     }
 
     protected virtual void FixedUpdate()
@@ -53,7 +65,7 @@ public class PlayerLogic : MonoBehaviour
         switch (currentPlayerState)
         {
             case PlayerState.inAdventurous:
-                if(_damageEffectApplied)
+                if (_damageEffectApplied)
                 {
                     _playerController.speed += 2f;
                     _damageEffectApplied = false;
@@ -75,10 +87,10 @@ public class PlayerLogic : MonoBehaviour
             case PlayerState.takingDamage:
                 if (!_damageEffectApplied)
                 {
-                    _playerController.speed -= 2; 
-                    _damageEffectApplied = true;  
+                    _playerController.speed -= 2;
+                    _damageEffectApplied = true;
                 }
-                
+
                 StartCoroutine(ResetTakingDamage());
                 break;
 
@@ -90,22 +102,22 @@ public class PlayerLogic : MonoBehaviour
 
     public void UpdatePlayerState()
     {
-        if(PlayerAttack._isAttacking)
+        if (PlayerAttack._isAttacking)
         {
             currentPlayerState = PlayerState.inAttack;
         }
 
-        else if(_isTakingDamage)
+        else if (_isTakingDamage)
         {
             currentPlayerState = PlayerState.takingDamage;
         }
 
-        else if (_playerHealth <= 0)
+        else if (_totalPlayerHealth <= 0)
         {
             currentPlayerState = PlayerState.deathState;
         }
 
-        else if(Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null)
+        else if (Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null)
         {
             currentPlayerState = PlayerState.inParry;
         }
@@ -115,15 +127,14 @@ public class PlayerLogic : MonoBehaviour
     public void ShieldParry(Shield shield, float enemyDamagePoints)
     {
         _playerAttack.isAttacking = false;
-        _playerHealth -= enemyDamagePoints * (shield.protectionFactor/100);
+        _totalPlayerHealth -= enemyDamagePoints * (shield.protectionFactor / 100);
         Debug.Log("Парирование");
     }
 
     public static void TakeDamage(float enemyDamagePoints)
     {
-        _playerHealth -= enemyDamagePoints;
+        _totalPlayerHealth -= enemyDamagePoints;
         _isTakingDamage = true;
-
     }
 
     public IEnumerator ResetTakingDamage()

@@ -64,7 +64,8 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        _playerHealthPoints = _playerHealth;
+        _totalPlayerHealth = _totalPlayerHealthPoints;
+
         UpdatePlayerState();
         switch (currentPlayerState)
         {
@@ -93,7 +94,7 @@ public class PlayerLogic : MonoBehaviour
 
                 StartCoroutine(ResetTakingDamage());
                 break;
-        
+
 
             default:
                 Debug.Log("Non-existent enemy state!");
@@ -131,7 +132,7 @@ public class PlayerLogic : MonoBehaviour
     public void ShieldParry(Shield_holder currentShield, float enemyDamagePoints)
     {
         _playerAttack.isAttacking = false;
-        _playerHealth -= enemyDamagePoints * (shield.protectionFactor/100);
+        _totalPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
         Debug.Log("Парирование");
     }
 
@@ -150,10 +151,10 @@ public class PlayerLogic : MonoBehaviour
 
     public IEnumerator ResetParry()
     {
-        
+
         yield return new WaitForSeconds(_currentShield.shield.rollbackTime);
         _isParrying = false;
-        if(successfulParry)
+        if (successfulParry)
         {
             successfulParry = false;
         }

@@ -85,6 +85,14 @@ public class PlayerAttack : MonoBehaviour
     public IEnumerator ResetAttack()
     {
         yield return new WaitForSeconds(currentWeapon.attackDelay);
+        cameraCursor.enabled = true;
+        isAttacking = false;
+        _isAttacking = false;
+    }
+
+    public IEnumerator ResetRepost()
+    {
+        yield return new WaitForSeconds(currentWeapon.attackDelay + 2f);
         animator.SetBool("isReposting", false);
         cameraCursor.enabled = true;
         isAttacking = false;

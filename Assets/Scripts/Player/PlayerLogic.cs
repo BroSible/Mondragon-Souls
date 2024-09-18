@@ -26,9 +26,11 @@ public class PlayerLogic : MonoBehaviour
     public static bool _isTakingDamage = false;
     private PlayerController _playerController;
     private PlayerAttack _playerAttack;
-    protected Rigidbody _rgbd;
-    protected Collider _collider;
-    private Shield _currentShield;
+    private Rigidbody _rgbd;
+    private Collider _collider;
+    public Shield_holder _currentShield;
+    private Animator _animator;
+    public static bool successfulParry = false;
     public static bool _isParrying = false;
     private bool _damageEffectApplied = false; // Новая переменная для отслеживания применения эффекта урона
 
@@ -47,9 +49,10 @@ public class PlayerLogic : MonoBehaviour
     {
         _rgbd = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
+        _animator = GetComponent<Animator>();
         _playerController = GetComponentInChildren<PlayerController>();
         _playerAttack = GetComponentInChildren<PlayerAttack>();
-        _currentShield = GetComponentInParent<Shield>();
+        _currentShield = GetComponentInChildren<Shield_holder>();
     }
 
     protected virtual void Start()
@@ -61,6 +64,7 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        _playerHealthPoints = _playerHealth;
         UpdatePlayerState();
         switch (currentPlayerState)
         {
@@ -73,10 +77,6 @@ public class PlayerLogic : MonoBehaviour
                 break;
 
             case PlayerState.inAttack:
-                break;
-
-            case PlayerState.inParry:
-                ShieldParry(_currentShield, Enemy._enemyDamage);
                 break;
 
             case PlayerState.deathState:
@@ -93,6 +93,7 @@ public class PlayerLogic : MonoBehaviour
 
                 StartCoroutine(ResetTakingDamage());
                 break;
+        
 
             default:
                 Debug.Log("Non-existent enemy state!");
@@ -117,17 +118,20 @@ public class PlayerLogic : MonoBehaviour
             currentPlayerState = PlayerState.deathState;
         }
 
-        else if (Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
         {
-            currentPlayerState = PlayerState.inParry;
+            _isParrying = true;
+
+            _animator.SetBool("isParrying", true);
+            ShieldParry(_currentShield, Enemy._enemyDamage);
         }
 
     }
 
-    public void ShieldParry(Shield shield, float enemyDamagePoints)
+    public void ShieldParry(Shield_holder currentShield, float enemyDamagePoints)
     {
         _playerAttack.isAttacking = false;
-        _totalPlayerHealth -= enemyDamagePoints * (shield.protectionFactor / 100);
+        _playerHealth -= enemyDamagePoints * (shield.protectionFactor/100);
         Debug.Log("Парирование");
     }
 
@@ -146,8 +150,15 @@ public class PlayerLogic : MonoBehaviour
 
     public IEnumerator ResetParry()
     {
-        yield return new WaitForSeconds(_currentShield.rollbackTime);
+        
+        yield return new WaitForSeconds(_currentShield.shield.rollbackTime);
         _isParrying = false;
-        currentPlayerState = PlayerState.inAdventurous;
+        if(successfulParry)
+        {
+            successfulParry = false;
+        }
+
+        _animator.SetBool("isParrying", false);
+        _animator.SetBool("isIdle", true);
     }
 }

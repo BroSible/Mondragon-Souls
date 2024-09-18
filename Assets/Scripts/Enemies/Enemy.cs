@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected float _patrolPointRange = 15f;
     
     [SerializeField] protected Animator _animator;
+    public static bool _isAttack = false;
 
 
     [Header("Patroling")]
@@ -67,6 +68,9 @@ public class Enemy : MonoBehaviour
 
     public delegate void DeathEventHandler();
     public event DeathEventHandler Death;
+
+    public delegate void IdleEventHandler();
+    public event IdleEventHandler Idle;
 
     public delegate void HitEventHandler();
     public event HitEventHandler Hit;
@@ -164,6 +168,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
+            Run?.Invoke();
             _agent.SetDestination(_currentPatrolPoint);
         }
 
@@ -194,6 +199,7 @@ public class Enemy : MonoBehaviour
         if (_playerInChaseRange)
         {
             _agent.isStopped = false;
+            Run?.Invoke();
             _agent.SetDestination(_target.position);
         }
         else if (_playerInAttackRange)
@@ -212,6 +218,8 @@ public class Enemy : MonoBehaviour
         _agent.SetDestination(transform.position);
         if (_canAttack)
         {
+            Attack?.Invoke(); 
+            _isAttack = true;
             PlayerLogic.TakeDamage(_damage);
             StartCoroutine(AttackCooldown());
             transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
@@ -237,7 +245,7 @@ public class Enemy : MonoBehaviour
     {
         _canAttack = false;
         yield return new WaitForSeconds(_attackCooldown);
-
+        _isAttack = false;
         _canAttack = true;
 
         // После перезарядки враг снова оценивает состояние

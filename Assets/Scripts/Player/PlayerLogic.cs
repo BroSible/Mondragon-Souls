@@ -6,8 +6,20 @@ using UnityEngine;
 public class PlayerLogic : MonoBehaviour
 {
     [Header("Characteristics")]
-    [SerializeField] private float _playerHealthPoints;
-    static private float _playerHealth;
+    [SerializeField] private float _totalPlayerHealthPoints;
+    static private float _totalPlayerHealth;
+
+    [SerializeField] public float headHealthPoints;
+
+    [SerializeField] public float leftArmHealthPoints;
+    [SerializeField] public float rightArmHealthPoints;
+
+    [SerializeField] public float leftLegHealthPoints;
+    [SerializeField] public float rightLegHealthPoints;
+
+    [SerializeField] public float bodyHealthPoints;
+
+
     [SerializeField] private float _stamina = 100f;
     [SerializeField] private float _maxStamina = 100f;
     public bool _isDead = false;
@@ -47,17 +59,18 @@ public class PlayerLogic : MonoBehaviour
     {
         currentPlayerState = PlayerState.inAdventurous;
 
-        _playerHealth = _playerHealthPoints;
+        _totalPlayerHealth = _totalPlayerHealthPoints;
     }
 
     protected virtual void FixedUpdate()
     {
-        _playerHealthPoints = _playerHealth;
+        _totalPlayerHealth = _totalPlayerHealthPoints;
+
         UpdatePlayerState();
         switch (currentPlayerState)
         {
             case PlayerState.inAdventurous:
-                if(_damageEffectApplied)
+                if (_damageEffectApplied)
                 {
                     _playerController.speed += 2f;
                     _damageEffectApplied = false;
@@ -75,13 +88,13 @@ public class PlayerLogic : MonoBehaviour
             case PlayerState.takingDamage:
                 if (!_damageEffectApplied)
                 {
-                    _playerController.speed -= 2; 
-                    _damageEffectApplied = true;  
+                    _playerController.speed -= 2;
+                    _damageEffectApplied = true;
                 }
-                
+
                 StartCoroutine(ResetTakingDamage());
                 break;
-        
+
 
             default:
                 Debug.Log("Non-existent enemy state!");
@@ -91,22 +104,22 @@ public class PlayerLogic : MonoBehaviour
 
     public void UpdatePlayerState()
     {
-        if(PlayerAttack._isAttacking)
+        if (PlayerAttack._isAttacking)
         {
             currentPlayerState = PlayerState.inAttack;
         }
 
-        else if(_isTakingDamage)
+        else if (_isTakingDamage)
         {
             currentPlayerState = PlayerState.takingDamage;
         }
 
-        else if (_playerHealth <= 0)
+        else if (_totalPlayerHealth <= 0)
         {
             currentPlayerState = PlayerState.deathState;
         }
 
-        if(Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
         {
             _isParrying = true;
 
@@ -118,31 +131,15 @@ public class PlayerLogic : MonoBehaviour
 
     public void ShieldParry(Shield_holder currentShield, float enemyDamagePoints)
     {
-
-
-        if(currentPlayerState == PlayerState.takingDamage && Enemy._isAttack)
-        {
-            _playerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor/100);
-            successfulParry = true;
-            Debug.Log("Парирование");
-            StartCoroutine(ResetParry());
-        }
-        
-        else
-        {
-            Debug.Log("Парирование не удалось");
-            StartCoroutine(ResetParry());
-            successfulParry = false;
-        }
-    
-       
+        _playerAttack.isAttacking = false;
+        _totalPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
+        Debug.Log("Парирование");
     }
 
     public static void TakeDamage(float enemyDamagePoints)
     {
-        _playerHealth -= enemyDamagePoints;
+        _totalPlayerHealth -= enemyDamagePoints;
         _isTakingDamage = true;
-
     }
 
     public IEnumerator ResetTakingDamage()
@@ -154,10 +151,10 @@ public class PlayerLogic : MonoBehaviour
 
     public IEnumerator ResetParry()
     {
-        
+
         yield return new WaitForSeconds(_currentShield.shield.rollbackTime);
         _isParrying = false;
-        if(successfulParry)
+        if (successfulParry)
         {
             successfulParry = false;
         }

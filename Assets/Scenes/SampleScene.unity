@@ -574,6 +574,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -2040254050740271484, guid: 6390fd7d812069949ba8b59c02a45d18, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -383518810844267698, guid: 6390fd7d812069949ba8b59c02a45d18, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -915,7 +919,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2389538849530911561, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -1568,10 +1572,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Long sword
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ed1a6ce582dfe474096fb42c61f2a66f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7071182760956848314, guid: ed1a6ce582dfe474096fb42c61f2a66f, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: e16c5d22bb43238438a962cdcf4a7451, type: 2}
+      objectReference: {fileID: 2100000, guid: 32c3d88c19c31e247be94c96957f3a48, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5649,8 +5657,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.15414232, y: 0.0018244562, z: 2.2413049}
-  m_Center: {x: 0.003836, y: 0.021630127, z: -1.6407202}
+  m_Size: {x: 0.15414232, y: 0.02277708, z: 2.2413049}
+  m_Center: {x: 0.0038361948, y: 0.0004761768, z: -1.6407205}
 --- !u!1 &1627666497 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -9203324390398772745, guid: 6390fd7d812069949ba8b59c02a45d18, type: 3}

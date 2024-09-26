@@ -37,7 +37,6 @@ public class PlayerLogic : MonoBehaviour
     public enum PlayerState
     {
         inAdventurous, // Базовое состояние игрока при изучении локации
-        inAttack,
         inParry,
         deathState,
         takingDamage
@@ -77,9 +76,6 @@ public class PlayerLogic : MonoBehaviour
                 }
                 break;
 
-            case PlayerState.inAttack:
-                break;
-
             case PlayerState.deathState:
                 _isDead = true;
                 Destroy(gameObject);
@@ -104,12 +100,7 @@ public class PlayerLogic : MonoBehaviour
 
     public void UpdatePlayerState()
     {
-        if (PlayerAttack._isAttacking)
-        {
-            currentPlayerState = PlayerState.inAttack;
-        }
-
-        else if (_isTakingDamage)
+        if (_isTakingDamage)
         {
             currentPlayerState = PlayerState.takingDamage;
         }

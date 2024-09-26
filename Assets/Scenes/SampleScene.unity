@@ -4642,7 +4642,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 01dea8e6bcf5f1c49b9be4a25645e5d3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5902,14 +5902,42 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4683669308469848369, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
+    - target: {fileID: -1461304994638716399, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
+    - target: {fileID: -1439730007547781893, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
     - target: {fileID: 919132149155446097, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
       propertyPath: m_Name
       value: Royal Spear
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1129496810705857465, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
+    - target: {fileID: 6317578925029434746, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
+    - target: {fileID: 7071182760956848314, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
+    - target: {fileID: 7202271454713460447, guid: 906356be1d0b44a4a91e0d0d8ef2550f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75c867295ad69d4e97e7218c3f07dd9, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

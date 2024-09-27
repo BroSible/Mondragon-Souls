@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class Weapon_holder : MonoBehaviour
 {
-    //this script is purely for getting the scriptableObject
-
     //set this scpript only on weapon
     public Weapon weapon;
 
     private void OnTriggerEnter(Collider other)
     {
-
+        other = GetComponentInParent<Collider>();
         if(other.CompareTag("Enemy"))
         {
             Enemy enemy = other.GetComponent<Enemy>();
@@ -22,9 +20,10 @@ public class Weapon_holder : MonoBehaviour
                 Debug.Log($"Enemy take {weapon.damage} damage");
             }
 
-            else
+            else if(PlayerAttack._isReposting)
             {
-                Debug.Log("??");
+                enemy.TakingPlayerDamage(weapon.damage * weapon.criticalDamageСoefficient);
+                Debug.Log($"Enemy take {weapon.damage * weapon.criticalDamageСoefficient} damage");
             }
         }
         

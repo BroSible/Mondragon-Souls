@@ -16,4 +16,6 @@ MonoBehaviour:
   type: One-handed sword
   attackDelay: 1
   description: 
-  damage: 8
+  damage: 10
+  "criticalDamage\u0421oefficient": 1.5
+  isTwoHanded: 0

@@ -13,4 +13,6 @@ public class Weapon : ScriptableObject
     public float attackDelay;
     public string description;
     public float damage;
+    public float criticalDamageСoefficient;
+    public bool isTwoHanded;
 }

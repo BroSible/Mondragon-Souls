@@ -17,3 +17,4 @@ MonoBehaviour:
   attackDelay: 2
   description: 
   damage: 10
+  "criticalDamage\u0421oefficient": 2.7

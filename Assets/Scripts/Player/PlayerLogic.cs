@@ -30,7 +30,7 @@ public class PlayerLogic : MonoBehaviour
     private Collider _collider;
     public Shield_holder _currentShield;
     private Animator _animator;
-    public static bool successfulParry = false;
+    public static bool _successfulParry = false;
     public static bool _isParrying = false;
     private bool _damageEffectApplied = false; // Новая переменная для отслеживания применения эффекта урона
 
@@ -64,6 +64,7 @@ public class PlayerLogic : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         _totalPlayerHealth = _totalPlayerHealthPoints;
+        Debug.Log($"Success parry: {_successfulParry}");
 
         UpdatePlayerState();
         switch (currentPlayerState)
@@ -75,6 +76,7 @@ public class PlayerLogic : MonoBehaviour
                     _damageEffectApplied = false;
                 }
                 break;
+
 
             case PlayerState.deathState:
                 _isDead = true;
@@ -110,7 +112,7 @@ public class PlayerLogic : MonoBehaviour
             currentPlayerState = PlayerState.deathState;
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
+        if (Input.GetKey(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
         {
             _isParrying = true;
 
@@ -124,6 +126,8 @@ public class PlayerLogic : MonoBehaviour
     {
         _playerAttack.isAttacking = false;
         _totalPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
+        _animator.Play("Parry");
+        StartCoroutine(ResetParry());
         Debug.Log("Парирование");
     }
 
@@ -142,15 +146,28 @@ public class PlayerLogic : MonoBehaviour
 
     public IEnumerator ResetParry()
     {
-
         yield return new WaitForSeconds(_currentShield.shield.rollbackTime);
+
         _isParrying = false;
-        if (successfulParry)
+        _animator.SetBool("isParrying", false);
+        
+
+        if (_successfulParry)
         {
-            successfulParry = false;
+            _successfulParry = false;
         }
 
-        _animator.SetBool("isParrying", false);
-        _animator.SetBool("isIdle", true);
+        if(PlayerAttack._isReposting)
+        {
+            SetAnimatorFlags(isParrying: false, isIdle: false, isAttacking: false);
+        }
     }
+
+    void SetAnimatorFlags(bool isParrying, bool isIdle, bool isAttacking)
+    {
+        _animator.SetBool("isParrying", isParrying);
+        _animator.SetBool("isIdle", isIdle);
+        _animator.SetBool("isAttacking", isAttacking);
+    }
+
 }

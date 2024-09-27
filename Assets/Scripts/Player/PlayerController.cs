@@ -36,37 +36,40 @@ public class PlayerController : MonoBehaviour
             moveDirection = (moveHorizontal * cameraRight + moveVertical * cameraForward).normalized;
             moveDirection *= speed;
 
-
-            if (moveDirection.magnitude > 0 && !PlayerLogic._isParrying)
+            // Проверка движения и установка флагов анимации
+            if (moveDirection.magnitude > 0 && !PlayerLogic._isParrying && !playerAttack.isAttacking)
             {
-                animator.SetBool("isWalking", true);
+                SetAnimatorFlags(isWalking: true, isIdle: false, isParrying: false, isAttacking: false);
             }
             else
             {
-                animator.SetBool("isWalking", false);
+                SetAnimatorFlags(isWalking: false, isIdle: !PlayerLogic._isParrying && !playerAttack.isAttacking, isParrying: PlayerLogic._isParrying, isAttacking: playerAttack.isAttacking);
+            }
+
+            // Остановка движения при парировании или атаке
+            if (PlayerLogic._isParrying)
+            {
+                moveDirection = Vector3.zero;
+                SetAnimatorFlags(isWalking: false, isIdle: false, isParrying: true, isAttacking: false);
+            }
+
+            else if(playerAttack.isAttacking)
+            {
+                SetAnimatorFlags(isWalking: false, isIdle: false, isParrying: false, isAttacking: true);
             }
         }
 
-        if (playerAttack.isAttacking == true)
-        {
-            moveDirection = Vector3.zero;
-            animator.SetBool("isWalking", false);
-        }
-
+        // Гравитация
         moveDirection.y -= gravity * Time.deltaTime;
         controller.Move(moveDirection * Time.deltaTime);
+    }
 
-        Vector3 horizontalMove = new Vector3(moveDirection.x, 0, moveDirection.z);
-        if (horizontalMove == Vector3.zero && !playerAttack.isAttacking && !PlayerLogic._isParrying)
-        {
-            animator.SetBool("isIdle", true);
-        }
-
-        else
-        {
-            animator.SetBool("isIdle", false);
-        }
-
-
+    // Метод для упрощения установки флагов анимации
+    void SetAnimatorFlags(bool isWalking, bool isIdle, bool isParrying, bool isAttacking)
+    {
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isIdle", isIdle);
+        animator.SetBool("isParrying", isParrying);
+        animator.SetBool("isAttacking", isAttacking);
     }
 }

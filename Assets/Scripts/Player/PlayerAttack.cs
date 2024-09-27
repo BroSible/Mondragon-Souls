@@ -6,6 +6,7 @@ public class PlayerAttack : MonoBehaviour
     public Weapon currentWeapon; // ScriptableObject для текущего оружия
     public bool isAttacking = false;
     public static bool _isAttacking = false;
+    public static bool _isReposting = false;
     private CameraCursor cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
@@ -22,7 +23,6 @@ public class PlayerAttack : MonoBehaviour
     {
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
         _shieldHolder = GetComponentInChildren<Shield_holder>();
-
         #region смена оружия
         if (_weaponHolder != null)
         {
@@ -35,45 +35,50 @@ public class PlayerAttack : MonoBehaviour
         }
         #endregion
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking)
+        // Атака, если игрок не атакует, не парирует и не делает репост
+        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             Attack();
         }
 
-        else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking)
+        // Сильная атака
+        else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             EnhancedAttack();
         }
 
-        else if(Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic.successfulParry)
+        // Репост, если успешное парирование
+        else if (Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic._successfulParry && !_isReposting)
         {
             Repost();
         }
-
         else
         {
             animator.SetBool("isAttacking", false);
         }
-        
     }
 
     void Attack()
     {
-        isAttacking = true;
-        _isAttacking = true;
-        animator.SetBool("isAttacking", true);
-        cameraCursor.enabled = false;
-        StartCoroutine(ResetAttack());
+        if (!PlayerLogic._isParrying && !_isReposting) // Не атакуем во время парирования и репоста
+        {
+            isAttacking = true;
+            _isAttacking = true;
+            SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
+            cameraCursor.enabled = false;
+            StartCoroutine(ResetAttack());
+        }
     }
 
     private void Repost()
     {
-        isAttacking = true;
-        _isAttacking = true;
-        animator.SetBool("isReposting", true);
-        animator.SetBool("isIdle", false);
-        cameraCursor.enabled = false;
-        StartCoroutine(ResetAttack());
+        if (PlayerLogic._successfulParry) // Проверяем, если парирование было успешным
+        {
+            _isReposting = true;
+            SetAnimatorFlags(isAttacking: false, isIdle: false, isParrying: false, isReposting: true);
+            cameraCursor.enabled = false;
+            StartCoroutine(ResetRepost());
+        }
     }
 
     void EnhancedAttack()
@@ -88,15 +93,25 @@ public class PlayerAttack : MonoBehaviour
         cameraCursor.enabled = true;
         isAttacking = false;
         _isAttacking = false;
+
+        // Если парирование и репост не активны, вернуться в состояние Idle
+        if (!PlayerLogic._isParrying && !_isReposting)
+        {
+            SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
+        }
     }
 
     public IEnumerator ResetRepost()
     {
-        yield return new WaitForSeconds(currentWeapon.attackDelay + 2f);
-        animator.SetBool("isReposting", false);
+        yield return new WaitForSeconds(currentWeapon.attackDelay + 3f);
+        _isReposting = false;
         cameraCursor.enabled = true;
-        isAttacking = false;
-        _isAttacking = false;
+
+        // Возвращаем флаги в состояние Idle после завершения репоста
+        SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
+
+        // Сброс флага успешного парирования после репоста
+        PlayerLogic._successfulParry = false;
     }
 
     public void SetWeapon(Weapon newWeapon) // метод для обновления текущего оружия (для инвентаря)
@@ -104,4 +119,11 @@ public class PlayerAttack : MonoBehaviour
         currentWeapon = newWeapon;
     }
 
+    void SetAnimatorFlags(bool isAttacking, bool isIdle, bool isParrying, bool isReposting)
+    {
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isReposting", isReposting);
+        animator.SetBool("isIdle", isIdle);
+        animator.SetBool("isParrying", isParrying);
+    }
 }

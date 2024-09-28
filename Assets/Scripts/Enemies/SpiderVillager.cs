@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using JetBrains.Annotations;
 
 public class SpiderVillager : Enemy
 {
     private Vector3 _randomOffset;
     private float _timeSinceLastDirectionChange = 0f;
     private float _directionChangeInterval = 1f;
+    public float distanceToPlayer;
 
     protected override void Start()
     {
@@ -66,7 +68,8 @@ public class SpiderVillager : Enemy
     protected override void PlayerChasing()
     {
         base.PlayerChasing();
-        float distanceToPlayer = Vector3.Distance(transform.position, _target.position);
+
+        distanceToPlayer = Vector3.Distance(transform.position, _target.position);
 
         if (distanceToPlayer > _attackRange)
         {
@@ -82,7 +85,6 @@ public class SpiderVillager : Enemy
         if (!_playerInChaseRange)
         {
             currentEnemyState = EnemyState.inPatrolling;
-            Debug.Log("Игрок вышел за пределы радиуса преследования. Враг возвращается к патрулированию.");
         }
     }
 

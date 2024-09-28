@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63397d6114a3c4be08832c9349da4828, type: 3}
   m_Name: Latticed armor
   m_EditorClassIdentifier: 
-  armorType: 
-  armorInfo: 
-  headProtectionFactor: 0
-  armProtectionFactor: 0
-  bodyProtectionFactor: 0
-  legProtectionFactor: 0
+  armorType: 0
+  armorInfo: Latticed
+  headProtectionFactor: 5
+  armProtectionFactor: 7
+  bodyProtectionFactor: 15
+  legProtectionFactor: 10

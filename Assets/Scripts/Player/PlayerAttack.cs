@@ -3,10 +3,12 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    // в корутинах просто поставить время анимации для задержки, иначе анимация повторяется, что нам не надо
     public Weapon currentWeapon; // ScriptableObject для текущего оружия
     public bool isAttacking = false;
-    public static bool _isAttacking = false;
+    public static bool _isAttacking = false; // статик переменная для Weapon_Holder
     public static bool _isReposting = false;
+    public static bool _isEnhancedAttacking = false;
     private CameraCursor cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
@@ -23,6 +25,7 @@ public class PlayerAttack : MonoBehaviour
     {
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
         _shieldHolder = GetComponentInChildren<Shield_holder>();
+
         #region смена оружия
         if (_weaponHolder != null)
         {
@@ -35,23 +38,21 @@ public class PlayerAttack : MonoBehaviour
         }
         #endregion
 
-        // Атака, если игрок не атакует, не парирует и не делает репост
         if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             Attack();
         }
 
-        // Сильная атака
         else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             EnhancedAttack();
         }
 
-        // Репост, если успешное парирование
         else if (Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic._successfulParry && !_isReposting)
         {
             Repost();
         }
+
         else
         {
             animator.SetBool("isAttacking", false);
@@ -60,19 +61,16 @@ public class PlayerAttack : MonoBehaviour
 
     void Attack()
     {
-        if (!PlayerLogic._isParrying && !_isReposting) // Не атакуем во время парирования и репоста
-        {
-            isAttacking = true;
-            _isAttacking = true;
-            SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
-            cameraCursor.enabled = false;
-            StartCoroutine(ResetAttack());
-        }
+        isAttacking = true;
+        _isAttacking = true;
+        SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
+        cameraCursor.enabled = false;
+        StartCoroutine(ResetAttack());   
     }
 
     private void Repost()
     {
-        if (PlayerLogic._successfulParry) // Проверяем, если парирование было успешным
+        if (PlayerLogic._successfulParry) 
         {
             _isReposting = true;
             SetAnimatorFlags(isAttacking: false, isIdle: false, isParrying: false, isReposting: true);
@@ -84,21 +82,35 @@ public class PlayerAttack : MonoBehaviour
     void EnhancedAttack()
     {
         Debug.Log("Сделана сильная атака");
-        // добавить логику усиленной атаки
+        _isEnhancedAttacking = true;
+        SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
+        cameraCursor.enabled = false;
+        StartCoroutine(ResetAttack());  
     }
 
     public IEnumerator ResetAttack()
     {
-        yield return new WaitForSeconds(currentWeapon.attackDelay);
-        cameraCursor.enabled = true;
-        isAttacking = false;
-        _isAttacking = false;
+        if(isAttacking)
+        {
+            yield return new WaitForSeconds(currentWeapon.attackDelay);
+            cameraCursor.enabled = true;
+            isAttacking = false;
+            _isAttacking = false;
+        }
 
-        // Если парирование и репост не активны, вернуться в состояние Idle
+        else if(_isEnhancedAttacking)
+        {
+            yield return new WaitForSeconds(currentWeapon.attackDelay + 2f); // тут заменить (потому что будет другая анимация для усиленной атаки и надо будет просто передавать время текущей анимации)
+            cameraCursor.enabled = true;
+            _isEnhancedAttacking = false;
+        }
+
+
         if (!PlayerLogic._isParrying && !_isReposting)
         {
             SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
         }
+        
     }
 
     public IEnumerator ResetRepost()
@@ -107,10 +119,8 @@ public class PlayerAttack : MonoBehaviour
         _isReposting = false;
         cameraCursor.enabled = true;
 
-        // Возвращаем флаги в состояние Idle после завершения репоста
         SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
 
-        // Сброс флага успешного парирования после репоста
         PlayerLogic._successfulParry = false;
     }
 

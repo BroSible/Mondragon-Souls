@@ -14,5 +14,10 @@ public class Shield_holder : MonoBehaviour
             PlayerLogic._successfulParry = true;
         }
 
+        if(PlayerLogic._successfulParry)
+        {
+            
+        }
+
     }
 }

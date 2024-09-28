@@ -128,7 +128,6 @@ public class PlayerLogic : MonoBehaviour
         _totalPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
         _animator.Play("Parry");
         StartCoroutine(ResetParry());
-        Debug.Log("Парирование");
     }
 
     public static void TakeDamage(float enemyDamagePoints)

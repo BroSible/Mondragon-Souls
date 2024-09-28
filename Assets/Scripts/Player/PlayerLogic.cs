@@ -1,13 +1,14 @@
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class PlayerLogic : MonoBehaviour
 {
     [Header("Characteristics")]
     [SerializeField] private float _totalPlayerHealthPoints;
-    static private float _totalPlayerHealth;
+    static private float _totalStaticPlayerHealth;
 
     [SerializeField] public float headHealthPoints;
 
@@ -59,13 +60,16 @@ public class PlayerLogic : MonoBehaviour
     {
         currentPlayerState = PlayerState.inAdventurous;
 
-        _totalPlayerHealth = _totalPlayerHealthPoints;
+        _totalStaticPlayerHealth = _totalPlayerHealthPoints;
+
     }
 
     protected virtual void FixedUpdate()
     {
-        _totalPlayerHealth = _totalPlayerHealthPoints;
-
+        _totalPlayerHealthPoints = _totalStaticPlayerHealth;
+    
+        UnityEngine.Debug.Log(_totalPlayerHealthPoints);
+        
         UpdatePlayerState();
         switch (currentPlayerState)
         {
@@ -97,7 +101,7 @@ public class PlayerLogic : MonoBehaviour
 
 
             default:
-                Debug.Log("Non-existent enemy state!");
+                UnityEngine.Debug.Log("Non-existent enemy state!");
                 break;
         }
     }
@@ -114,7 +118,7 @@ public class PlayerLogic : MonoBehaviour
             currentPlayerState = PlayerState.takingDamage;
         }
 
-        else if (_totalPlayerHealth <= 0)
+        else if (_totalStaticPlayerHealth <= 0)
         {
             currentPlayerState = PlayerState.deathState;
         }
@@ -132,13 +136,13 @@ public class PlayerLogic : MonoBehaviour
     public void ShieldParry(Shield_holder currentShield, float enemyDamagePoints)
     {
         _playerAttack.isAttacking = false;
-        _totalPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
-        Debug.Log("Парирование");
+        _totalStaticPlayerHealth -= enemyDamagePoints * (currentShield.shield.protectionFactor / 100);
+        UnityEngine.Debug.Log("Парирование");
     }
 
     public static void TakeDamage(float enemyDamagePoints)
     {
-        _totalPlayerHealth -= enemyDamagePoints;
+        _totalStaticPlayerHealth -= enemyDamagePoints;
         _isTakingDamage = true;
     }
 

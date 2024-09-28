@@ -9,11 +9,14 @@ public class Enemy : MonoBehaviour
     [Header("Characteristics")]
     [SerializeField] protected float _enemyHealthPoints;
     [SerializeField] protected float _damage = 2f;
+    
     public static float _enemyDamage; // для ссылки
+    // public float Damage => _damage;
+
     [SerializeField] protected float _attackRange = 1f;
     [SerializeField] protected float _chaseRange = 3f;
     [SerializeField] protected float _patrolPointRange = 15f;
-    
+
     [SerializeField] protected Animator _animator;
     public static bool _isAttack = false;
 
@@ -83,6 +86,8 @@ public class Enemy : MonoBehaviour
         _collider = GetComponent<Collider>();
         _animator = GetComponent<Animator>();
         _enemyDamage = _damage;
+        
+        // Damage = _damage;
     }
 
     protected virtual void Start()
@@ -105,14 +110,14 @@ public class Enemy : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         _playerInChaseRange = Physics.CheckSphere(transform.position, _chaseRange, Player);
-        _playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
+
+        //_playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
 
         UpdateEnemyState();
 
         switch (currentEnemyState)
         {
             case EnemyState.inPatrolling:
-
                 Patrolling();
                 _agent.speed = _patrolSpeed;
                 break;
@@ -144,15 +149,11 @@ public class Enemy : MonoBehaviour
     {
         if (currentEnemyState != EnemyState.deathState)
         {
-            if (_playerInAttackRange)
-            {
-                currentEnemyState = EnemyState.inAttack;
-            }
-            else if (_playerInChaseRange)
+            if (_playerInChaseRange && currentEnemyState != EnemyState.inAttack)
             {
                 currentEnemyState = EnemyState.inChasing;
             }
-            else
+            else if (!_playerInChaseRange)
             {
                 currentEnemyState = EnemyState.inPatrolling;
             }
@@ -164,7 +165,6 @@ public class Enemy : MonoBehaviour
         if (!_isPatrolPointSet)
         {
             SearchPatrolPoint();
-            
         }
         else
         {
@@ -182,7 +182,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void SearchPatrolPoint()
     {
-        
+
         NavMeshHit hit;
         Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
 
@@ -202,10 +202,10 @@ public class Enemy : MonoBehaviour
             Run?.Invoke();
             _agent.SetDestination(_target.position);
         }
-        else if (_playerInAttackRange)
-        {
-            currentEnemyState = EnemyState.inAttack;
-        }
+        // else if (_playerInAttackRange)
+        // {
+        //     currentEnemyState = EnemyState.inAttack;
+        // }
         else if (!_playerInChaseRange) // Переход в патрулирование, если игрок вне зоны преследования
         {
             currentEnemyState = EnemyState.inPatrolling;
@@ -218,9 +218,9 @@ public class Enemy : MonoBehaviour
         _agent.SetDestination(transform.position);
         if (_canAttack)
         {
-            Attack?.Invoke(); 
+            Attack?.Invoke();  
             _isAttack = true;
-            PlayerLogic.TakeDamage(_damage);
+
             StartCoroutine(AttackCooldown());
             transform.LookAt(new Vector3(_target.position.x, transform.position.y, _target.position.z));
         }

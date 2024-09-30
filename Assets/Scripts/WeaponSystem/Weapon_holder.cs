@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Weapon_holder : MonoBehaviour
 {
-    //this script is purely for getting the scriptableObject
-
     //set this scpript only on weapon
     public Weapon weapon;
 
@@ -15,11 +13,24 @@ public class Weapon_holder : MonoBehaviour
         {
             Enemy enemy = other.GetComponent<Enemy>();
             
-            if (enemy != null && PlayerAttack._isAttacking)
+            if (PlayerAttack._isAttacking)
             {
                 enemy.TakingPlayerDamage(weapon.damage);
                 Debug.Log($"Enemy take {weapon.damage} damage");
             }
+
+            else if(PlayerAttack._isReposting)
+            {
+                enemy.TakingPlayerDamage(weapon.damage * weapon.criticalDamageСoefficient);
+                Debug.Log($"Enemy take {weapon.damage * weapon.criticalDamageСoefficient} repost damage");
+            }
+
+            else if(PlayerAttack._isEnhancedAttacking)
+            {
+                enemy.TakingPlayerDamage(weapon.damage * 2f);
+                Debug.Log($"Enemy take {weapon.damage * 2f} Enhanced damage");
+            }
         }
+        
     }
 }

@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    // в корутинах просто поставить время анимации для задержки, иначе анимация повторяется, что нам не надо
     public Weapon currentWeapon; // ScriptableObject для текущего оружия
     public bool isAttacking = false;
-    public static bool _isAttacking = false;
+    public static bool _isAttacking = false; // статик переменная для Weapon_Holder
+    public static bool _isReposting = false;
+    public static bool _isEnhancedAttacking = false;
     private CameraCursor cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
@@ -35,17 +38,17 @@ public class PlayerAttack : MonoBehaviour
         }
         #endregion
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             Attack();
         }
 
-        else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking)
+        else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
             EnhancedAttack();
         }
 
-        else if(Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic.successfulParry)
+        else if (Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic._successfulParry && !_isReposting)
         {
             Repost();
         }
@@ -54,41 +57,71 @@ public class PlayerAttack : MonoBehaviour
         {
             animator.SetBool("isAttacking", false);
         }
-        
     }
 
     void Attack()
     {
         isAttacking = true;
         _isAttacking = true;
-        animator.SetBool("isAttacking", true);
+        SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
         cameraCursor.enabled = false;
-        StartCoroutine(ResetAttack());
+        StartCoroutine(ResetAttack());   
     }
 
     private void Repost()
     {
-        isAttacking = true;
-        _isAttacking = true;
-        animator.SetBool("isReposting", true);
-        animator.SetBool("isIdle", false);
-        cameraCursor.enabled = false;
-        StartCoroutine(ResetAttack());
+        if (PlayerLogic._successfulParry) 
+        {
+            _isReposting = true;
+            SetAnimatorFlags(isAttacking: false, isIdle: false, isParrying: false, isReposting: true);
+            cameraCursor.enabled = false;
+            StartCoroutine(ResetRepost());
+        }
     }
 
     void EnhancedAttack()
     {
         Debug.Log("Сделана сильная атака");
-        // добавить логику усиленной атаки
+        _isEnhancedAttacking = true;
+        SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
+        cameraCursor.enabled = false;
+        StartCoroutine(ResetAttack());  
     }
 
     public IEnumerator ResetAttack()
     {
-        yield return new WaitForSeconds(currentWeapon.attackDelay);
-        animator.SetBool("isReposting", false);
+        if(isAttacking)
+        {
+            yield return new WaitForSeconds(currentWeapon.attackDelay);
+            cameraCursor.enabled = true;
+            isAttacking = false;
+            _isAttacking = false;
+        }
+
+        else if(_isEnhancedAttacking)
+        {
+            yield return new WaitForSeconds(currentWeapon.attackDelay + 2f); // тут заменить (потому что будет другая анимация для усиленной атаки и надо будет просто передавать время текущей анимации)
+            cameraCursor.enabled = true;
+            _isEnhancedAttacking = false;
+        }
+
+
+        if (!PlayerLogic._isParrying && !_isReposting)
+        {
+            SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
+        }
+        
+    }
+
+    public IEnumerator ResetRepost()
+    {
+        yield return new WaitForSeconds(currentWeapon.attackDelay + 3f);
+        _isReposting = false;
         cameraCursor.enabled = true;
-        isAttacking = false;
-        _isAttacking = false;
+
+        SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
+
+        PlayerLogic._successfulParry = false;
     }
 
     public void SetWeapon(Weapon newWeapon) // метод для обновления текущего оружия (для инвентаря)
@@ -96,4 +129,11 @@ public class PlayerAttack : MonoBehaviour
         currentWeapon = newWeapon;
     }
 
+    void SetAnimatorFlags(bool isAttacking, bool isIdle, bool isParrying, bool isReposting)
+    {
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isReposting", isReposting);
+        animator.SetBool("isIdle", isIdle);
+        animator.SetBool("isParrying", isParrying);
+    }
 }

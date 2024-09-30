@@ -17,3 +17,5 @@ MonoBehaviour:
   attackDelay: 1
   description: Secret Weapon
   damage: 20
+  "criticalDamage\u0421oefficient": 2.5
+  isTwoHanded: 0

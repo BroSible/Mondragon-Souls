@@ -16,4 +16,6 @@ MonoBehaviour:
   type: Greatsword
   attackDelay: 3
   description: 
-  damage: 15
+  damage: 35
+  "criticalDamage\u0421oefficient": 1.2
+  isTwoHanded: 1

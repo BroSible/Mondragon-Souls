@@ -45,7 +45,7 @@ public class PlayerAttack : MonoBehaviour
 
         else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
         {
-            EnhancedAttack();
+            Invoke(nameof (EnhancedAttack),1f);
         }
 
         else if (Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic._successfulParry && !_isReposting)

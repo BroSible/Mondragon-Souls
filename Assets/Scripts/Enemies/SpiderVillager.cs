@@ -7,9 +7,6 @@ using JetBrains.Annotations;
 
 public class SpiderVillager : Enemy
 {
-    private Vector3 _randomOffset;
-    private float _timeSinceLastDirectionChange = 0f;
-    private float _directionChangeInterval = 1f;
     public float distanceToPlayer;
 
     protected override void Start()
@@ -18,51 +15,7 @@ public class SpiderVillager : Enemy
         Attack += PlayAttackAnimation;
         Run += PlayRunAnimation;
         Idle += PlayIdleAnimation;
-    }
-
-    protected override void SearchPatrolPoint()
-    {
-        NavMeshHit hit;
-
-        Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
-
-        if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, NavMesh.AllAreas))
-        {
-            _currentPatrolPoint = hit.position;
-            _isPatrolPointSet = true;
-
-            _randomOffset = new Vector3(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(-2f, 2f));
-        }
-    }
-
-    protected override void Patrolling()
-    {
-        if (!_isPatrolPointSet)
-        {
-            SearchPatrolPoint();
-        }
-        else
-        {
-            // Периодически изменяем направление движения
-            if (_timeSinceLastDirectionChange > _directionChangeInterval)
-            {
-                // Меняем скорость на случайную для создания эффекта "рывков"
-                _agent.speed = UnityEngine.Random.Range(_patrolSpeed * 0.5f, _patrolSpeed * 1.5f);
-                _timeSinceLastDirectionChange = 0f;
-            }
-
-            // Добавляем случайное отклонение от цели
-            _agent.SetDestination(_currentPatrolPoint + _randomOffset);
-
-            _timeSinceLastDirectionChange += Time.deltaTime;
-        }
-
-        Vector3 distanceToPatrolPoint = transform.position - _currentPatrolPoint;
-
-        if (distanceToPatrolPoint.magnitude < 1f)
-        {
-            _isPatrolPointSet = false;
-        }
+        Parried += PlayParriedAnimation;
     }
 
     protected override void PlayerChasing()
@@ -101,5 +54,10 @@ public class SpiderVillager : Enemy
     private void PlayIdleAnimation()
     {
         _animator.Play("Idle");
+    }
+
+    private void PlayParriedAnimation()
+    {
+        _animator.Play("Parried"); // заменить на анимацию ошеломления когда враг парирован
     }
 }

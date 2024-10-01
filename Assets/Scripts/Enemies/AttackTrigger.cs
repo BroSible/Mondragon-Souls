@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.MPE;
 using UnityEngine;
 
 public class AttackTrigger : MonoBehaviour
@@ -56,5 +55,7 @@ public class AttackTrigger : MonoBehaviour
     {
         Debug.Log($"Противник нанёс {Enemy._enemyDamage} урона игроку");
         PlayerLogic.TakeDamage(Enemy._enemyDamage);
+        Debug.Log($"Оставшееся здоровье игрока: {PlayerLogic._totalPlayerHealth}");
+        
     }
 }

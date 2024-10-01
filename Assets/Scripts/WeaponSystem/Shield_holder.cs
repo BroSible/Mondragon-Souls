@@ -9,15 +9,9 @@ public class Shield_holder : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Enemy") && PlayerLogic._isParrying)
+        if(other.CompareTag("EnemyTarget") && PlayerLogic._isParrying)
         {
             PlayerLogic._successfulParry = true;
         }
-
-        if(PlayerLogic._successfulParry)
-        {
-            
-        }
-
     }
 }

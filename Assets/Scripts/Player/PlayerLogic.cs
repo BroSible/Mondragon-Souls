@@ -7,7 +7,7 @@ public class PlayerLogic : MonoBehaviour
 {
     [Header("Characteristics")]
     [SerializeField] private float _totalPlayerHealthPoints;
-    static private float _totalPlayerHealth;
+    static public float _totalPlayerHealth;
 
     [SerializeField] public float headHealthPoints;
 
@@ -63,7 +63,7 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        _totalPlayerHealth = _totalPlayerHealthPoints;
+        _totalPlayerHealthPoints = _totalPlayerHealth;
         Debug.Log($"Success parry: {_successfulParry}");
 
         UpdatePlayerState();

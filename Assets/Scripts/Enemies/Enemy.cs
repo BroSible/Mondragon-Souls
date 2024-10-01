@@ -20,16 +20,15 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected Animator _animator;
     public static bool _isAttack = false;
 
-
     [Header("Patroling")]
     protected Vector3 _currentPatrolPoint;
     [SerializeField] protected bool _isPatrolPointSet;
-
     [SerializeField] protected float _patrolInterval = 5f;
     [SerializeField] protected bool _isAlreadyAttacked;
+    [SerializeField] protected bool _isParried = false; // Индивидуальная переменная для каждого врага
     [SerializeField] public bool _playerInChaseRange, _playerInAttackRange;
+    
     [SerializeField] protected bool _hasBeenTargeted;
-
 
     [Header("Navigation")]
     protected NavMeshAgent _agent;
@@ -54,6 +53,7 @@ public class Enemy : MonoBehaviour
         inChasing,
         inAttack,
         deathState,
+        parried,
         takingPlayerDamage
     }
 
@@ -75,8 +75,8 @@ public class Enemy : MonoBehaviour
     public delegate void IdleEventHandler();
     public event IdleEventHandler Idle;
 
-    public delegate void HitEventHandler();
-    public event HitEventHandler Hit;
+    public delegate void ParriedEventHandler();
+    public event ParriedEventHandler Parried;
     #endregion Events
 
     protected virtual void Awake()
@@ -135,6 +135,11 @@ public class Enemy : MonoBehaviour
                 Destroy(gameObject);
                 break;
 
+            case EnemyState.parried:
+                Parried?.Invoke();
+                StartCoroutine(ResetParried());
+                break;
+
             case EnemyState.takingPlayerDamage:
                 // тут добавить какую-нибудь interesting logic
                 break;
@@ -149,13 +154,18 @@ public class Enemy : MonoBehaviour
     {
         if (currentEnemyState != EnemyState.deathState)
         {
-            if (_playerInChaseRange && currentEnemyState != EnemyState.inAttack)
+            if (_playerInChaseRange && currentEnemyState != EnemyState.inAttack && !_isParried)
             {
                 currentEnemyState = EnemyState.inChasing;
             }
-            else if (!_playerInChaseRange)
+            else if (!_playerInChaseRange && !_isParried)
             {
                 currentEnemyState = EnemyState.inPatrolling;
+            }
+
+            else if(_isParried)
+            {
+                currentEnemyState = EnemyState.parried;
             }
         }
     }
@@ -182,16 +192,21 @@ public class Enemy : MonoBehaviour
 
     protected virtual void SearchPatrolPoint()
     {
-
         NavMeshHit hit;
         Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
 
         if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, NavMesh.AllAreas)) // Проблема тут
         {
             _currentPatrolPoint = hit.position;
-            Debug.Log(_currentPatrolPoint);
             _isPatrolPointSet = true;
         }
+    }
+       
+
+    public void ApplyParry()
+    {
+        _isParried = true;
+        currentEnemyState = EnemyState.parried;
     }
 
     protected virtual void PlayerChasing()
@@ -265,5 +280,14 @@ public class Enemy : MonoBehaviour
         float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(animationLength + 10f);
         Destroy(gameObject);
+    }
+
+    public virtual IEnumerator ResetParried()
+    {
+        float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationLength + 5f);
+        _isParried = false;
+        Debug.Log("Станлок врага");
+        currentEnemyState = EnemyState.inPatrolling;
     }
 }

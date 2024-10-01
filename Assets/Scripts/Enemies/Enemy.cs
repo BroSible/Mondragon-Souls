@@ -231,6 +231,7 @@ public class Enemy : MonoBehaviour
     public virtual void PlayerAttacking()
     {
         _agent.SetDestination(transform.position);
+        
         if (_canAttack)
         {
             Attack?.Invoke();  

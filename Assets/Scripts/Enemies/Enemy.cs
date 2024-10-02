@@ -232,7 +232,7 @@ public class Enemy : MonoBehaviour
     {
         _agent.SetDestination(transform.position);
         
-        if (_canAttack)
+        if (_canAttack && !_isParried)
         {
             Attack?.Invoke();  
             _isAttack = true;

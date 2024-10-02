@@ -46,13 +46,13 @@ MonoBehaviour:
     value: 1
   filtering:
     overrideState: 1
-    value: {x: 50, y: 95}
+    value: {x: 54, y: 99}
   minLuminance:
     overrideState: 1
-    value: 1.5
+    value: 2
   maxLuminance:
     overrideState: 1
-    value: 2.2
+    value: 9
   keyValue:
     overrideState: 1
     value: 1
@@ -1523,7 +1523,7 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 1.15
+    value: 1.42
   color:
     overrideState: 1
     value: {r: 0, g: 0, b: 0, a: 1}

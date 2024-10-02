@@ -55,7 +55,6 @@ public class AttackTrigger : MonoBehaviour
     {
         Debug.Log($"Противник нанёс {Enemy._enemyDamage} урона игроку");
         PlayerLogic.TakeDamage(Enemy._enemyDamage);
-        Debug.Log($"Оставшееся здоровье игрока: {PlayerLogic._totalPlayerHealth}");
-        
+        Debug.Log($"Оставшееся здоровье игрока: {PlayerLogic._totalPlayerHealth}");   
     }
 }

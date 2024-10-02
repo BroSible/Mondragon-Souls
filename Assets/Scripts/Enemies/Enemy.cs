@@ -9,7 +9,7 @@ public class Enemy : MonoBehaviour
     [Header("Characteristics")]
     [SerializeField] protected float _enemyHealthPoints;
     [SerializeField] protected float _damage = 2f;
-    
+
     public static float _enemyDamage; // для ссылки
     // public float Damage => _damage;
 
@@ -27,7 +27,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected bool _isAlreadyAttacked;
     [SerializeField] protected bool _isParried = false; // Индивидуальная переменная для каждого врага
     [SerializeField] public bool _playerInChaseRange, _playerInAttackRange;
-    
+
     [SerializeField] protected bool _hasBeenTargeted;
 
     [Header("Navigation")]
@@ -46,6 +46,11 @@ public class Enemy : MonoBehaviour
     // Задержка перед возможностью следующей атаки
     [SerializeField] protected float _attackCooldown = 3f; // Время перезарядки
     private bool _canAttack = true; // Может ли враг атаковать
+
+    [Header("Vision Settings")]
+    [SerializeField] private float _fieldOfView = 360f; // Угол зрения врага
+    [SerializeField] private float _sightRange;   // Дальность зрения врага
+    [SerializeField] private LayerMask _obstacleMask;   // Слой препятствий
 
     public enum EnemyState
     {
@@ -86,8 +91,8 @@ public class Enemy : MonoBehaviour
         _collider = GetComponent<Collider>();
         _animator = GetComponent<Animator>();
         _enemyDamage = _damage;
-        
-        // Damage = _damage;
+
+        _sightRange = _chaseRange;
     }
 
     protected virtual void Start()
@@ -113,6 +118,8 @@ public class Enemy : MonoBehaviour
 
         //_playerInAttackRange = Physics.CheckSphere(transform.position, _attackRange, Player);
 
+        CheckForPlayerVisibility();
+        
         UpdateEnemyState();
 
         switch (currentEnemyState)
@@ -163,7 +170,7 @@ public class Enemy : MonoBehaviour
                 currentEnemyState = EnemyState.inPatrolling;
             }
 
-            else if(_isParried)
+            else if (_isParried)
             {
                 currentEnemyState = EnemyState.parried;
             }
@@ -201,7 +208,7 @@ public class Enemy : MonoBehaviour
             _isPatrolPointSet = true;
         }
     }
-       
+
 
     public void ApplyParry()
     {
@@ -211,7 +218,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void PlayerChasing()
     {
-        if (_playerInChaseRange)
+        if (_playerInChaseRange  ) // && дописать проверку, связаннную с методом CheckForPlayerVisibility()
         {
             _agent.isStopped = false;
             Run?.Invoke();
@@ -231,10 +238,10 @@ public class Enemy : MonoBehaviour
     public virtual void PlayerAttacking()
     {
         _agent.SetDestination(transform.position);
-        
+
         if (_canAttack)
         {
-            Attack?.Invoke();  
+            Attack?.Invoke();
             _isAttack = true;
 
             StartCoroutine(AttackCooldown());
@@ -279,7 +286,7 @@ public class Enemy : MonoBehaviour
     public virtual IEnumerator C_OnDefeat()  // для удаления тела через время   (временное средство, потом переделать)
     {
         float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(animationLength + 10f);
+        yield return new WaitForSeconds(animationLength + 1f);
         Destroy(gameObject);
     }
 
@@ -290,5 +297,40 @@ public class Enemy : MonoBehaviour
         _isParried = false;
         Debug.Log("Станлок врага");
         currentEnemyState = EnemyState.inPatrolling;
+    }
+
+    private void CheckForPlayerVisibility()
+    {
+        if (!_playerInChaseRange)
+            return;
+
+        // Получаем направление к игроку
+        Vector3 directionToPlayer = (_target.position - transform.position).normalized;
+
+        // Проверяем, находится ли игрок в пределах угла зрения врага
+        if (Vector3.Angle(transform.forward, directionToPlayer) < _fieldOfView / 2)
+        {
+            float distanceToPlayer = Vector3.Distance(transform.position, _target.position);
+
+            // Проверяем, есть ли прямая видимость к игроку
+            if (!Physics.Raycast(transform.position, directionToPlayer, distanceToPlayer, _obstacleMask))
+            {
+                // Игрок виден, враг начинает преследование
+                _playerInChaseRange = true;
+                currentEnemyState = EnemyState.inChasing;
+            }
+            else
+            {
+                // Игрок не виден из-за препятствия
+                _playerInChaseRange = false;
+                currentEnemyState = EnemyState.inPatrolling;
+            }
+        }
+        else
+        {
+            // Игрок вне угла зрения врага
+            _playerInChaseRange = false;
+            currentEnemyState = EnemyState.inPatrolling;
+        }
     }
 }

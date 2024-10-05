@@ -9,7 +9,8 @@ public class Weapon : ScriptableObject
 
     public enum WeaponType
     {
-        Sword, // Меч
+        OneHand, // Одноручный Меч
+        TwoHand, // Двуручный Меч
         Axe, // Топор/Секира
         Spear, // Копьё
         Scythe, // Коса
@@ -32,6 +33,7 @@ public class Weapon : ScriptableObject
     public float attackDelay;
     public string description;
     public float damage;
+    public float staminaCost;
     public float criticalDamageСoefficient;
     public bool isTwoHanded;
 }

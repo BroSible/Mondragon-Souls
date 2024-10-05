@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Royal Guard Spear
   m_EditorClassIdentifier: 
   name: Royal Guard Spear
-  type: Spear
+  type: 0
+  combatRange: 0
   attackDelay: 2
   description: 
   damage: 12
+  staminaCost: 14.3
   "criticalDamage\u0421oefficient": 1.4
+  isTwoHanded: 0

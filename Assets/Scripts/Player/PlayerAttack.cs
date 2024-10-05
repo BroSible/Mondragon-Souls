@@ -9,20 +9,25 @@ public class PlayerAttack : MonoBehaviour
     public static bool _isAttacking = false; // статик переменная для Weapon_Holder
     public static bool _isReposting = false;
     public static bool _isEnhancedAttacking = false;
-    private CameraCursor cameraCursor;
+
+    
+    private CameraCursor _cameraCursor;
     private Animator animator;
     public Weapon_holder _weaponHolder;
     public Shield_holder _shieldHolder;
+    private PlayerLogic _playerLogic;
 
 
     void Start()
     {
-        cameraCursor = GetComponent<CameraCursor>();
+        _cameraCursor = GetComponent<CameraCursor>();
         animator = GetComponent<Animator>();
+        _playerLogic = GetComponent<PlayerLogic>();
     }
 
     void Update()
     {
+        bool canAttack = !isAttacking && !_isReposting && !PlayerLogic._isParrying;
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
         _shieldHolder = GetComponentInChildren<Shield_holder>();
 
@@ -38,12 +43,12 @@ public class PlayerAttack : MonoBehaviour
         }
         #endregion
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && canAttack && _playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
         {
             Attack();
         }
 
-        else if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking && !_isReposting && !PlayerLogic._isParrying)
+        else if (Input.GetKeyDown(KeyCode.LeftShift) && canAttack && _playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
         {
             Invoke(nameof (EnhancedAttack),1f);
         }
@@ -52,19 +57,20 @@ public class PlayerAttack : MonoBehaviour
         {
             Repost();
         }
-
-        else
-        {
-            animator.SetBool("isAttacking", false);
-        }
     }
 
     void Attack()
     {
         isAttacking = true;
         _isAttacking = true;
+
+        if (_playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
+        {
+            _playerLogic.Stamina -= _weaponHolder.weapon.staminaCost;
+        }
+        
         SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
-        cameraCursor.enabled = false;
+        _cameraCursor.enabled = false;
         StartCoroutine(ResetAttack());   
     }
 
@@ -73,8 +79,12 @@ public class PlayerAttack : MonoBehaviour
         if (PlayerLogic._successfulParry) 
         {
             _isReposting = true;
+            if (_playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
+            {
+                _playerLogic.Stamina -= _weaponHolder.weapon.staminaCost + 15f;
+            }
             SetAnimatorFlags(isAttacking: false, isIdle: false, isParrying: false, isReposting: true);
-            cameraCursor.enabled = false;
+            _cameraCursor.enabled = false;
             StartCoroutine(ResetRepost());
         }
     }
@@ -83,8 +93,12 @@ public class PlayerAttack : MonoBehaviour
     {
         Debug.Log("Сделана сильная атака");
         _isEnhancedAttacking = true;
+        if (_playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
+        {
+            _playerLogic.Stamina -= _weaponHolder.weapon.staminaCost + 10f;
+        }
         SetAnimatorFlags(isAttacking: true, isIdle: false, isParrying: false, isReposting: false);
-        cameraCursor.enabled = false;
+        _cameraCursor.enabled = false;
         StartCoroutine(ResetAttack());  
     }
 
@@ -93,7 +107,7 @@ public class PlayerAttack : MonoBehaviour
         if(isAttacking)
         {
             yield return new WaitForSeconds(currentWeapon.attackDelay);
-            cameraCursor.enabled = true;
+            _cameraCursor.enabled = true;
             isAttacking = false;
             _isAttacking = false;
         }
@@ -101,7 +115,7 @@ public class PlayerAttack : MonoBehaviour
         else if(_isEnhancedAttacking)
         {
             yield return new WaitForSeconds(currentWeapon.attackDelay + 2f); // тут заменить (потому что будет другая анимация для усиленной атаки и надо будет просто передавать время текущей анимации)
-            cameraCursor.enabled = true;
+            _cameraCursor.enabled = true;
             _isEnhancedAttacking = false;
         }
 
@@ -117,7 +131,7 @@ public class PlayerAttack : MonoBehaviour
     {
         yield return new WaitForSeconds(currentWeapon.attackDelay + 3f);
         _isReposting = false;
-        cameraCursor.enabled = true;
+        _cameraCursor.enabled = true;
 
         SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
 

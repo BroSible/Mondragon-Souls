@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Battle Axe
   m_EditorClassIdentifier: 
   name: Battle Axe
-  type: Axe
+  type: 0
+  combatRange: 0
   attackDelay: 2
   description: 
   damage: 10
+  staminaCost: 15
   "criticalDamage\u0421oefficient": 2.7
+  isTwoHanded: 0

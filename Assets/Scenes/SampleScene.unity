@@ -1466,23 +1466,23 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: ef26914614f46b9418626efc01b6be73, type: 2}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.24999997
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.25
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.2500001
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.639
+      value: -0.851
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.027
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1546,7 +1546,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2389538849530911561, guid: 098253ad81d698643afea593e6f77262, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -2205,7 +2205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cfd807840519e7646b0f4e1f39ac040f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cfd807840519e7646b0f4e1f39ac040f, type: 3}
       propertyPath: m_TagString
@@ -3359,6 +3359,11 @@ MonoBehaviour:
   _patrolSpeed: 2
   _chaseSpeed: 3
   _attackCooldown: 3
+  _fieldOfView: 360
+  _sightRange: 0
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
   currentEnemyState: 0
 --- !u!1001 &547278922
 PrefabInstance:
@@ -5200,6 +5205,11 @@ MonoBehaviour:
   _patrolSpeed: 2
   _chaseSpeed: 3
   _attackCooldown: 2
+  _fieldOfView: 360
+  _sightRange: 0
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
   currentEnemyState: 0
   distanceToPlayer: 0
 --- !u!1 &787181007 stripped
@@ -5691,6 +5701,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 4
   gravity: 20
+  moveDirection: {x: 0, y: 0, z: 0}
   cameraTransform: {fileID: 1664112600}
 --- !u!4 &938531120 stripped
 Transform:
@@ -5767,14 +5778,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _totalPlayerHealthPoints: 100
+  staminaRecoverDelay: 2
+  staminaRecoveryCounter: 0
+  staminaRecoverRateIdle: 10
+  staminaRecoverRateWalking: 5
+  _maxStamina: 100
+  _staminaRecoveryThreshold: 20
   headHealthPoints: 0
   leftArmHealthPoints: 0
   rightArmHealthPoints: 0
   leftLegHealthPoints: 0
   rightLegHealthPoints: 0
   bodyHealthPoints: 0
-  _stamina: 100
-  _maxStamina: 100
   _isDead: 0
   _currentShield: {fileID: 0}
   currentPlayerState: 0
@@ -5848,7 +5863,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 01dea8e6bcf5f1c49b9be4a25645e5d3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6232,7 +6247,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.086408235, y: 0.31344265, z: 0.047938272}
   m_Center: {x: 0.0035796005, y: -0.019999992, z: 0.000929804}
@@ -6530,7 +6545,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.087527886, y: 0.3461749, z: 0.055737577}
   m_Center: {x: -0.007876105, y: -0.039362818, z: 0.0025728235}
@@ -7138,6 +7153,11 @@ MonoBehaviour:
   _patrolSpeed: 2
   _chaseSpeed: 3
   _attackCooldown: 2
+  _fieldOfView: 360
+  _sightRange: 0
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
   currentEnemyState: 0
   distanceToPlayer: 0
 --- !u!1001 &1338954931
@@ -7275,7 +7295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3da5911678ae54447beaf5306402afbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shield: {fileID: 11400000, guid: 7aef0474752349145a42726e52447937, type: 2}
+  _shield: {fileID: 11400000, guid: 7aef0474752349145a42726e52447937, type: 2}
 --- !u!65 &1411266671
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7400,6 +7420,11 @@ MonoBehaviour:
   _patrolSpeed: 2
   _chaseSpeed: 3
   _attackCooldown: 2
+  _fieldOfView: 360
+  _sightRange: 0
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
   currentEnemyState: 0
   distanceToPlayer: 0
 --- !u!1 &1442075582 stripped

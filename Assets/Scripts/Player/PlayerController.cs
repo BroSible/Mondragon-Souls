@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -5,10 +6,10 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float gravity;
     private CharacterController controller;
-    private Vector3 moveDirection = Vector3.zero;
+    public Vector3 moveDirection = Vector3.zero;
     private PlayerAttack playerAttack;
     private Animator animator;
-    public Transform cameraTransform; // Ссылка на камеру для расчета направления
+    public Transform cameraTransform; 
 
     void Start()
     {
@@ -19,6 +20,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+
         if (controller.isGrounded)
         {
             float moveHorizontal = Input.GetAxis("Horizontal");
@@ -36,7 +38,10 @@ public class PlayerController : MonoBehaviour
             moveDirection = (moveHorizontal * cameraRight + moveVertical * cameraForward).normalized;
             moveDirection *= speed;
 
-            if (moveDirection.magnitude > 0 && !PlayerLogic._isParrying && !playerAttack.isAttacking && !PlayerAttack._isReposting && !PlayerAttack._isEnhancedAttacking)
+            Mathf.Floor(moveDirection.magnitude);
+            Debug.Log(moveDirection.magnitude);
+
+            if (moveDirection.magnitude >= 1 && !PlayerLogic._isParrying && !playerAttack.isAttacking && !PlayerAttack._isReposting && !PlayerAttack._isEnhancedAttacking)
             {
                 SetAnimatorFlags(isWalking: true, isIdle: false, isParrying: false, isAttacking: false);
             }
@@ -47,7 +52,6 @@ public class PlayerController : MonoBehaviour
                 SetAnimatorFlags(isWalking: false, isIdle: !PlayerLogic._isParrying && !playerAttack.isAttacking, isParrying: PlayerLogic._isParrying, isAttacking: playerAttack.isAttacking);
             }
 
-            // Остановка движения при парировании или атаке
             if (PlayerLogic._isParrying)
             {
                 moveDirection = Vector3.zero;
@@ -64,6 +68,8 @@ public class PlayerController : MonoBehaviour
                 SetAnimatorFlags(isWalking: false, isIdle: false, isParrying: false, isAttacking: true);
                 // тут заменить на анимацию усиленной атаки, когда она появится 
             }
+
+
         }
 
         // Гравитация

@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Catana
   m_EditorClassIdentifier: 
   name: Catana
-  type: Catana
+  type: 1
+  combatRange: 0
   attackDelay: 1
   description: Secret Weapon
   damage: 20
+  staminaCost: 18.5
   "criticalDamage\u0421oefficient": 2.5
-  isTwoHanded: 0
+  isTwoHanded: 1

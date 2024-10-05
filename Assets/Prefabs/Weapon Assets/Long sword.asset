@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Long sword
   m_EditorClassIdentifier: 
   name: Long sword
-  type: One-handed sword
+  type: 0
+  combatRange: 0
   attackDelay: 1
   description: 
   damage: 10
+  staminaCost: 10.8
   "criticalDamage\u0421oefficient": 1.5
   isTwoHanded: 0

@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Zweihander
   m_EditorClassIdentifier: 
   name: Zweihander
-  type: Greatsword
+  type: 1
+  combatRange: 0
   attackDelay: 3
   description: 
   damage: 35
+  staminaCost: 20
   "criticalDamage\u0421oefficient": 1.2
   isTwoHanded: 1

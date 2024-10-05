@@ -4,16 +4,23 @@ using UnityEngine;
 
 public class Shield_holder : MonoBehaviour
 {
-    public Shield shield;
-    private Enemy enemy;
+    public Shield _shield;
+    private Enemy _enemy;
+    private PlayerLogic _playerLogic;
+
+    private void Start()
+    {
+        _playerLogic = GetComponentInParent<PlayerLogic>();
+    }
 
     public void OnTriggerEnter(Collider other)
     {
-        enemy = other.GetComponentInParent<Enemy>();
+        _enemy = other.GetComponent<Enemy>();
         if(other.CompareTag("EnemyTarget") && PlayerLogic._isParrying)
         {
             PlayerLogic._successfulParry = true;
-            enemy.ApplyParry();
+            _enemy.ApplyParry();
+            _playerLogic.Stamina -= 10f;
         }
     }
 }

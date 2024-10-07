@@ -32,7 +32,6 @@ public class PlayerLogic : MonoBehaviour
     private PlayerAttack _playerAttack;
     public Shield_holder _currentShield;
     private Animator _animator;
-    private CameraCursor _cameraCursor;
     public static bool _successfulParry = false;
     public static bool _isParrying = false;
     private bool _damageEffectApplied = false;
@@ -53,7 +52,6 @@ public class PlayerLogic : MonoBehaviour
     {
         _maxStamina = Stamina;
         _animator = GetComponent<Animator>();
-        _cameraCursor = GetComponent<CameraCursor>();
         _playerController = GetComponentInChildren<PlayerController>();
         _playerAttack = GetComponentInChildren<PlayerAttack>();
         _currentShield = GetComponentInChildren<Shield_holder>();
@@ -67,14 +65,15 @@ public class PlayerLogic : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        staminaRecoveryCounter += Time.deltaTime;
+
         Debug.Log($"stamina: {Stamina}");
         _totalPlayerHealthPoints = _totalPlayerHealth;
         Debug.Log($"Success parry: {_successfulParry}");
 
         UpdatePlayerState();
+        HandleStaminaRecovery();
 
-        if (Input.GetKey(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
+        if (Input.GetKey(KeyCode.LeftControl) && _currentShield != null && !_isParrying && Stamina >= 5f)
         {
             _isParrying = true;
             _animator.SetBool("isParrying", true);
@@ -112,22 +111,15 @@ public class PlayerLogic : MonoBehaviour
                 StartCoroutine(ResetTakingDamage());
                 break;
 
-            case PlayerState.Idle:
-            case PlayerState.Walking:
-                HandleStaminaRecovery();
-                break;
-
             default:
                 Debug.Log("Non-existent player state!");
-                break;
-
-            
+                break;       
         }
     }
 
     public void UpdatePlayerState()
     {
-        bool canTransitionToIdle = !_playerAttack.isAttacking && !_isTakingDamage && !PlayerAttack._isEnhancedAttacking && !PlayerAttack._isReposting && !_isParrying;
+        bool canTransitionToIdle = !_playerAttack.isAttacking && !_isTakingDamage && !PlayerAttack._isEnhancedAttacking && !_playerAttack.IsReposting && !_isParrying;
 
         if (_isTakingDamage)
         {
@@ -153,6 +145,8 @@ public class PlayerLogic : MonoBehaviour
 
     private void HandleStaminaRecovery()
     {
+        staminaRecoveryCounter += Time.deltaTime;
+        
         if (staminaRecoveryCounter >= staminaRecoverDelay)
         {
             switch (currentPlayerState)
@@ -176,7 +170,6 @@ public class PlayerLogic : MonoBehaviour
         {
             Stamina -= 5f;
         }
-        _cameraCursor.enabled = false;
         _totalPlayerHealth -= enemyDamagePoints * (currentShield._shield.protectionFactor / 100);
         _animator.Play("Parry");
         StartCoroutine(ResetParry());
@@ -198,7 +191,6 @@ public class PlayerLogic : MonoBehaviour
     public IEnumerator ResetParry()
     {
         yield return new WaitForSeconds(_currentShield._shield.rollbackTime);
-        _cameraCursor.enabled = true;
         _isParrying = false;
         _animator.SetBool("isParrying", false);
 
@@ -207,7 +199,7 @@ public class PlayerLogic : MonoBehaviour
             _successfulParry = false;
         }
 
-        if (PlayerAttack._isReposting)
+        if (_playerAttack.IsReposting)
         {
             SetAnimatorFlags(isParrying: false, isIdle: false, isAttacking: false);
         }

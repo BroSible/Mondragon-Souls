@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
     void UpdateAnimatorFlags()
     {
         bool isWalking = currentSpeed >= 1f && !_playerAttack.isAttacking && !PlayerLogic._isParrying; 
-        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying;
+        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !PlayerAttack._isEnhancedAttacking;
         bool isParrying = PlayerLogic._isParrying;
         bool isAttacking = _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking;
         animator.SetBool("isWalking", isWalking);

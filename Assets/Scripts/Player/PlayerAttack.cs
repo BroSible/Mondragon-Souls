@@ -46,7 +46,7 @@ public class PlayerAttack : MonoBehaviour
 
         else if (Input.GetKeyDown(KeyCode.LeftShift) && canAttack && _playerLogic.Stamina >= _weaponHolder.weapon.staminaCost)
         {
-            Invoke(nameof (EnhancedAttack),1f);
+            EnhancedAttack();
         }
 
         else if (Input.GetKeyDown(KeyCode.Mouse0) && PlayerLogic._successfulParry && !IsReposting)
@@ -106,14 +106,7 @@ public class PlayerAttack : MonoBehaviour
         {
             yield return new WaitForSeconds(currentWeapon.attackDelay + 2f); // тут заменить (потому что будет другая анимация для усиленной атаки и надо будет просто передавать время текущей анимации)
             _isEnhancedAttacking = false;
-        }
-
-
-        if (!PlayerLogic._isParrying && !IsReposting)
-        {
-            SetAnimatorFlags(isAttacking: false, isIdle: true, isParrying: false, isReposting: false);
-        }
-        
+        }        
     }
 
     public IEnumerator ResetRepost()

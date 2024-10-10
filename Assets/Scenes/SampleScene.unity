@@ -5706,6 +5706,51 @@ MonoBehaviour:
   deceleration: 5
   moveDirection: {x: 0, y: 0, z: 0}
   cameraTransform: {fileID: 1664112600}
+  _isDashing: 0
+  _dashTime: 0.5
+  _dashSpeed: 5
+  _dashSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -1.8932521
+      outSlope: -1.8932521
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.38894814
+      value: 0.2636231
+      inSlope: -1.3661487
+      outSlope: -1.3661487
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7186416
+      value: -0.013004627
+      inSlope: -0.48981452
+      outSlope: -0.48981452
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.0036621
+      value: -0.053073883
+      inSlope: -0.14058375
+      outSlope: -0.14058375
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   currentSpeed: 0
 --- !u!4 &938531120 stripped
 Transform:

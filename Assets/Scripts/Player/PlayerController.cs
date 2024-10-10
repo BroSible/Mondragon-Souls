@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -14,6 +15,10 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     public Transform cameraTransform;
     private CameraCursor _cameraCursor;
+    [SerializeField] private bool _isDashing = false;
+    [SerializeField] private float _dashTime = 0.5f;
+    [SerializeField] private float _dashSpeed;
+    [SerializeField] private AnimationCurve _dashSpeedCurve;
 
     [SerializeField] private float currentSpeed = 0f; // Текущая скорость
 
@@ -32,7 +37,6 @@ public class PlayerController : MonoBehaviour
 
         CameraCursorEnabled();
         UpdateAnimatorFlags();
-
 
         if (controller.isGrounded)
         {
@@ -71,6 +75,12 @@ public class PlayerController : MonoBehaviour
             }
 
             moveDirection = targetDirection * currentSpeed;
+
+            //Dash
+            if(Input.GetKey(KeyCode.Space))
+            {
+               StartCoroutine(Dash(moveDirection));
+            }
         }
 
         else
@@ -99,15 +109,53 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public IEnumerator Dash(Vector3 direction)
+    {
+        // Проверка на возможность совершить рывок
+        if (_isDashing || direction == Vector3.zero)
+        {
+            _cameraCursor.enabled = false;
+            yield break;
+        }
+
+        else
+        {
+            _cameraCursor.enabled = true;
+        }
+
+        _isDashing = true;
+        float elapsedTime = 0f;
+
+        // Запускаем рывок с постепенным изменением скорости по кривой
+        while (elapsedTime < _dashTime)
+        {
+            float speedMultiplier = _dashSpeed * _dashSpeedCurve.Evaluate(elapsedTime / _dashTime);
+
+            // Определяем направление и скорость рывка
+            moveDirection = direction * speedMultiplier;
+
+            // Перемещаем игрока через CharacterController
+            controller.Move(moveDirection * Time.deltaTime);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        _isDashing = false;
+        yield break;
+    }
+
     void UpdateAnimatorFlags()
     {
-        bool isWalking = currentSpeed >= 1f && !_playerAttack.isAttacking && !PlayerLogic._isParrying; 
-        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !PlayerAttack._isEnhancedAttacking;
+        bool isWalking = currentSpeed >= 1f && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !_isDashing; 
+        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !PlayerAttack._isEnhancedAttacking && !_isDashing;
         bool isParrying = PlayerLogic._isParrying;
         bool isAttacking = _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking;
+        bool isDashing = _isDashing;
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isIdle", isIdle);
         animator.SetBool("isParrying", isParrying);
         animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isDashing",isDashing);
     }
 }

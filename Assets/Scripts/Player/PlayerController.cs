@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 5f; // Максимальная скорость
+    public float speed = 5f; 
     public float gravity = 9.81f;
     public float rotationSpeed = 10f;
-    public float acceleration = 10f; // Ускорение
-    public float deceleration = 5f; // Замедление
+    public float acceleration = 10f; 
+    public float deceleration = 5f; 
     private CharacterController controller;
     public Vector3 moveDirection = Vector3.zero;
     private PlayerAttack _playerAttack;
@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Проверяем, можно ли двигаться
         bool canMove = !_playerAttack.isAttacking && !PlayerAttack._isEnhancedAttacking && !PlayerLogic._isParrying;
 
         CameraCursorEnabled();
@@ -89,16 +88,14 @@ public class PlayerController : MonoBehaviour
             moveDirection.y -= gravity * Time.deltaTime; 
         }
 
-        
-
         controller.Move(moveDirection * Time.deltaTime);
     }
 
 
-    //Метод отключения поворота камеры на курсором, если игрок ходит, если он стоит, то скрипт будет включен обратно.
+    //Метод отключения поворота камеры на курсором, если игрок ходит. Если он стоит, то скрипт будет включен обратно.
     void CameraCursorEnabled()
     {
-        if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying)
+        if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || _isDashing)
         {
             _cameraCursor.enabled = false;
         }
@@ -111,30 +108,24 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator Dash(Vector3 direction)
     {
-        // Проверка на возможность совершить рывок
-        if (_isDashing || direction == Vector3.zero)
+        if (_isDashing)
         {
-            _cameraCursor.enabled = false;
             yield break;
         }
 
-        else
+        if (direction == Vector3.zero)
         {
-            _cameraCursor.enabled = true;
+            direction = transform.forward;
         }
 
         _isDashing = true;
         float elapsedTime = 0f;
 
-        // Запускаем рывок с постепенным изменением скорости по кривой
         while (elapsedTime < _dashTime)
         {
             float speedMultiplier = _dashSpeed * _dashSpeedCurve.Evaluate(elapsedTime / _dashTime);
 
-            // Определяем направление и скорость рывка
             moveDirection = direction * speedMultiplier;
-
-            // Перемещаем игрока через CharacterController
             controller.Move(moveDirection * Time.deltaTime);
 
             elapsedTime += Time.deltaTime;
@@ -144,6 +135,7 @@ public class PlayerController : MonoBehaviour
         _isDashing = false;
         yield break;
     }
+
 
     void UpdateAnimatorFlags()
     {

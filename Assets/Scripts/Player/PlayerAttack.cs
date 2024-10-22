@@ -12,6 +12,7 @@ public class PlayerAttack : MonoBehaviour
     private Animator animator;
     public Weapon_holder _weaponHolder;
     public Shield_holder _shieldHolder;
+    private PlayerController _playerController;
     private PlayerLogic _playerLogic;
 
 
@@ -19,11 +20,12 @@ public class PlayerAttack : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         _playerLogic = GetComponent<PlayerLogic>();
+        _playerController = GetComponent<PlayerController>();
     }
 
     void Update()
     {
-        bool canAttack = !isAttacking && !IsReposting && !PlayerLogic._isParrying;
+        bool canAttack = !isAttacking && !IsReposting && !PlayerLogic._isParrying && !_playerController.IsDashing;
         _weaponHolder = GetComponentInChildren<Weapon_holder>();
         _shieldHolder = GetComponentInChildren<Shield_holder>();
 

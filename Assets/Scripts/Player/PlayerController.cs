@@ -12,10 +12,12 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
     public Vector3 moveDirection = Vector3.zero;
     private PlayerAttack _playerAttack;
+    private PlayerLogic _playerLogic;
     private Animator animator;
-    public Transform cameraTransform;
+    public Transform _cameraTransform;
+    private Transform _playerTransform;
     private CameraCursor _cameraCursor;
-    [SerializeField] private bool _isDashing = false;
+    [SerializeField] public bool IsDashing {get; set;} = false;
     [SerializeField] private float _dashTime = 0.5f;
     [SerializeField] private float _dashSpeed;
     [SerializeField] private AnimationCurve _dashSpeedCurve;
@@ -26,7 +28,9 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         _playerAttack = GetComponent<PlayerAttack>();
+        _playerLogic = GetComponent<PlayerLogic>();
         _cameraCursor = GetComponent<CameraCursor>();
+        _playerTransform = GetComponent<Transform>();
         animator = GetComponent<Animator>();
     }
 
@@ -39,19 +43,7 @@ public class PlayerController : MonoBehaviour
 
         if (controller.isGrounded)
         {
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            float moveVertical = Input.GetAxis("Vertical");
-
-            // Получаем направление движения относительно камеры
-            Vector3 cameraForward = cameraTransform.forward;
-            Vector3 cameraRight = cameraTransform.right;
-            cameraForward.y = 0f;
-            cameraRight.y = 0f;
-            cameraForward.Normalize();
-            cameraRight.Normalize();
-
-            // Вычисляем вектор направления движения
-            Vector3 targetDirection = (moveHorizontal * cameraRight + moveVertical * cameraForward).normalized;
+            Vector3 targetDirection = GetMovementDirection();
 
             // Плавный поворот к направлению движения
             if (targetDirection.magnitude > 0.1f && canMove)
@@ -76,7 +68,7 @@ public class PlayerController : MonoBehaviour
             moveDirection = targetDirection * currentSpeed;
 
             //Dash
-            if(Input.GetKey(KeyCode.Space))
+            if(Input.GetKey(KeyCode.Space) && _playerLogic.Stamina >= 20f)
             {
                StartCoroutine(Dash(moveDirection));
             }
@@ -91,11 +83,30 @@ public class PlayerController : MonoBehaviour
         controller.Move(moveDirection * Time.deltaTime);
     }
 
+    private Vector3 GetMovementDirection()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        // Получаем направление движения относительно камеры
+        Vector3 cameraForward = _cameraTransform.forward;
+        Vector3 cameraRight = _cameraTransform.right;
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        // Вычисляем вектор направления движения
+        Vector3 targetDirection = (moveHorizontal * cameraRight + moveVertical * cameraForward).normalized;
+
+        return targetDirection;      
+    }
+
 
     //Метод отключения поворота камеры на курсором, если игрок ходит. Если он стоит, то скрипт будет включен обратно.
     void CameraCursorEnabled()
     {
-        if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || _isDashing)
+        if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || IsDashing)
         {
             _cameraCursor.enabled = false;
         }
@@ -108,7 +119,8 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator Dash(Vector3 direction)
     {
-        if (_isDashing)
+        float staminaCost;
+        if (IsDashing)
         {
             yield break;
         }
@@ -116,13 +128,20 @@ public class PlayerController : MonoBehaviour
         if (direction == Vector3.zero)
         {
             direction = transform.forward;
+            staminaCost = 10f;
         }
 
-        _isDashing = true;
+        else
+        {
+            staminaCost = 20f;
+        }
+
+        IsDashing = true;
         float elapsedTime = 0f;
 
         while (elapsedTime < _dashTime)
         {
+            
             float speedMultiplier = _dashSpeed * _dashSpeedCurve.Evaluate(elapsedTime / _dashTime);
 
             moveDirection = direction * speedMultiplier;
@@ -132,18 +151,20 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        _isDashing = false;
+        _playerLogic.Stamina -= staminaCost;
+        IsDashing = false;
         yield break;
     }
 
 
     void UpdateAnimatorFlags()
     {
-        bool isWalking = currentSpeed >= 1f && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !_isDashing; 
-        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !PlayerAttack._isEnhancedAttacking && !_isDashing;
+        bool isWalking = currentSpeed >= 1f && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !IsDashing; 
+        bool isIdle = !isWalking && !_playerAttack.isAttacking && !PlayerLogic._isParrying && !PlayerAttack._isEnhancedAttacking && !IsDashing;
         bool isParrying = PlayerLogic._isParrying;
-        bool isAttacking = _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking;
-        bool isDashing = _isDashing;
+        bool isAttacking = _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking; 
+        bool isDashing = IsDashing;
+        
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isIdle", isIdle);
         animator.SetBool("isParrying", isParrying);

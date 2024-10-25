@@ -9,28 +9,28 @@ public class Weapon_holder : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy"))
         {
             Enemy enemy = other.GetComponent<Enemy>();
-            
+
             if (PlayerAttack._isAttacking)
             {
-                enemy.TakingPlayerDamage(weapon.damage);
+                enemy.TakingPlayerDmg(weapon.damage);
                 Debug.Log($"Enemy take {weapon.damage} damage");
             }
 
-            else if(PlayerAttack._isReposting)
+            else if (PlayerAttack._isReposting)
             {
-                enemy.TakingPlayerDamage(weapon.damage * weapon.criticalDamageСoefficient);
+                enemy.TakingPlayerDmg(weapon.damage * weapon.criticalDamageСoefficient);
                 Debug.Log($"Enemy take {weapon.damage * weapon.criticalDamageСoefficient} repost damage");
             }
 
-            else if(PlayerAttack._isEnhancedAttacking)
+            else if (PlayerAttack._isEnhancedAttacking)
             {
-                enemy.TakingPlayerDamage(weapon.damage * 2f);
+                enemy.TakingPlayerDmg(weapon.damage * 2f);
                 Debug.Log($"Enemy take {weapon.damage * 2f} Enhanced damage");
             }
+
         }
-        
     }
 }

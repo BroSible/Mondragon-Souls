@@ -6,37 +6,31 @@ public class Weapon_holder : MonoBehaviour
 {
     //set this scpript only on weapon
     public Weapon weapon;
-    private PlayerAttack _playerAttack;
-
-    void Start()
-    {
-        _playerAttack = GetComponentInParent<PlayerAttack>();
-    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy"))
         {
             Enemy enemy = other.GetComponent<Enemy>();
-            
-            if (_playerAttack.isAttacking)
+
+            if (PlayerAttack._isAttacking)
             {
-                enemy.TakingPlayerDamage(weapon.damage);
+                enemy.TakingPlayerDmg(weapon.damage);
                 Debug.Log($"Enemy take {weapon.damage} damage");
             }
 
-            else if(_playerAttack.IsReposting)
+            else if (PlayerAttack._isReposting)
             {
-                enemy.TakingPlayerDamage(weapon.damage * weapon.criticalDamageСoefficient);
+                enemy.TakingPlayerDmg(weapon.damage * weapon.criticalDamageСoefficient);
                 Debug.Log($"Enemy take {weapon.damage * weapon.criticalDamageСoefficient} repost damage");
             }
 
-            else if(PlayerAttack._isEnhancedAttacking)
+            else if (PlayerAttack._isEnhancedAttacking)
             {
-                enemy.TakingPlayerDamage(weapon.damage * 2f);
+                enemy.TakingPlayerDmg(weapon.damage * 2f);
                 Debug.Log($"Enemy take {weapon.damage * 2f} Enhanced damage");
             }
+
         }
-        
     }
 }

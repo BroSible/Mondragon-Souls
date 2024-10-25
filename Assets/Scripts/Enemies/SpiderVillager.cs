@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 
 public class SpiderVillager : Enemy
 {
-    public float distanceToPlayer;
-
     protected override void Start()
     {
         base.Start();
@@ -18,32 +16,20 @@ public class SpiderVillager : Enemy
         Parried += PlayParriedAnimation;
     }
 
-    protected override void PlayerChasing()
+    protected override void PlayerChase()
     {
-        base.PlayerChasing();
+        base.PlayerChase();
+    }
 
-        distanceToPlayer = Vector3.Distance(transform.position, _target.position);
-
-        if (distanceToPlayer > _attackRange)
-        {
-            _agent.isStopped = false;
-            _agent.SetDestination(_target.position);
-        }
-        else
-        {
-            currentEnemyState = EnemyState.inAttack;
-        }
-
-        // Переход в патрулирование, если игрок вне зоны преследования
-        if (!_playerInChaseRange)
-        {
-            currentEnemyState = EnemyState.inPatrolling;
-        }
+    protected override void PlayerAttack()
+    {
+        base.PlayerAttack();
     }
 
     private void PlayAttackAnimation()
     {
         _animator.Play("Attack");
+        Debug.Log("Анимация атаки..");
     }
 
     private void PlayRunAnimation()

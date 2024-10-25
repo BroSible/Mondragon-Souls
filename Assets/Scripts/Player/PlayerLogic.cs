@@ -115,10 +115,6 @@ public class PlayerLogic : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && _currentShield != null && !_isParrying)
         {
             _isParrying = true;
-            
-            ////////////////////////////////// 
-            Enemy._isParried = true;    
-
 
             _animator.SetBool("isParrying", true);
             ShieldParry(_currentShield, Enemy._enemyDamage);

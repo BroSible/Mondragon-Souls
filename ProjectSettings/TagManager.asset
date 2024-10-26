@@ -7,7 +7,6 @@ TagManager:
   - Roof
   - Enemy
   - Shield
-  - EnemyTarget
   layers:
   - Default
   - TransparentFX
@@ -17,10 +16,10 @@ TagManager:
   - UI
   - Entities
   - Post processing
-  - Buildings
   - Roof
   - Ground
   - Player
+  - 
   - 
   - 
   - 

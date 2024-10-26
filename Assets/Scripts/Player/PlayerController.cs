@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour
             moveDirection = targetDirection * currentSpeed;
 
             //Dash
-            if(Input.GetKey(KeyCode.Space) && _playerLogic.Stamina >= 20f)
+            if(Input.GetKey(KeyCode.Space) && _playerLogic.Stamina >= 20f && canMove)
             {
                StartCoroutine(Dash(moveDirection));
             }

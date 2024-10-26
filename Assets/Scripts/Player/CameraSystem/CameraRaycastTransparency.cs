@@ -44,7 +44,6 @@ public class CameraRaycastTransparency : MonoBehaviour
                 if (fadeObject == null)
                 {
                     Material newMaterial = new Material(hitRenderer.material);
-                    newMaterial.shader = hitRenderer.material.shader;
                     hitRenderer.material = newMaterial;
 
                     fadeObject = new FadeObject(hitRenderer, newMaterial);
@@ -71,15 +70,12 @@ public class CameraRaycastTransparency : MonoBehaviour
 
             if (fadeObject.isFadingOut)
             {
-                // Плавно уменьшаем прозрачность
                 fadeObject.FadeOut(fadeSpeed);
             }
             else
             {
-                // Плавно возвращаем прозрачность
                 fadeObject.FadeIn(fadeSpeed);
 
-                // Если объект полностью восстановил прозрачность, удаляем его из списка
                 if (fadeObject.IsFullyVisible())
                 {
                     fadeObject.ResetMaterial();
@@ -96,23 +92,17 @@ public class FadeObject
     public Material material;
     public bool isFadingOut;
     private Color originalColor;
-    private float originalMode;
 
     public FadeObject(Renderer renderer, Material material)
     {
         this.renderer = renderer;
         this.material = material;
         this.originalColor = material.color;
-        this.originalMode = material.GetFloat("_Mode");
     }
 
     public void FadeOut(float fadeSpeed)
     {
-        // Устанавливаем режим рендеринга в Fade для плавной прозрачности
-        if (material.GetFloat("_Mode") != 2f) // 2 соответствует режиму Fade
-        {
-            SetMaterialFadeMode();
-        }
+        SetMaterialFadeMode();
 
         Color color = material.color;
         color.a = Mathf.Max(0, color.a - fadeSpeed * Time.deltaTime);
@@ -125,7 +115,6 @@ public class FadeObject
         color.a = Mathf.Min(originalColor.a, color.a + fadeSpeed * Time.deltaTime);
         material.color = color;
 
-        // Если прозрачность полностью восстановлена, возвращаем исходный режим рендеринга
         if (IsFullyVisible())
         {
             ResetMaterialMode();
@@ -145,25 +134,32 @@ public class FadeObject
 
     private void SetMaterialFadeMode()
     {
-        material.SetFloat("_Mode", 2f);
+        // Проверка, поддерживает ли шейдер прозрачность
+        if (material.shader.name != "Universal Render Pipeline/Lit")
+        {
+            Debug.LogWarning("Материал не использует шейдер URP/Lit. Замените шейдер для корректной работы прозрачности.");
+            return;
+        }
+        
+        // Установка параметров прозрачности для URP
+        material.SetOverrideTag("RenderType", "Transparent");
+        material.SetInt("_Surface", 1); // 1 означает Transparent в URP
         material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
         material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
         material.SetInt("_ZWrite", 0);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.EnableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
         material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
     }
+
 
     private void ResetMaterialMode()
     {
-        material.SetFloat("_Mode", originalMode);
+        material.SetOverrideTag("RenderType", "Opaque");
         material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
         material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
         material.SetInt("_ZWrite", 1);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.DisableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = -1;
+        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
+        material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
     }
 }

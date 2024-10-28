@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 
 public class SpiderVillager : Enemy
 {
-    public float distanceToPlayer;
-
     protected override void Start()
     {
         base.Start();

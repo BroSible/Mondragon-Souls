@@ -1,73 +1,99 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using System;
 
 public class Enemy : MonoBehaviour
 {
     #region Fields
 
     [Header("Characteristics")]
-    [SerializeField] protected float _enemyHealthPoints;
-    [SerializeField] protected float _damage = 2f;
+    [SerializeField]
+    protected float _enemyHealthPoints;
+
+    [SerializeField]
+    protected float _damage = 2f;
 
     public static float _enemyDamage; // для ссылки
+
     // public float Damage => _damage;
-    
+
 
     [Header("Patrol")]
     protected Vector3 _currentPatrolPoint;
-    [SerializeField] protected float _patrolPointRange = 15f;
-    [SerializeField] protected bool _isPatrolPointSet;
-    [SerializeField] protected float _patrolInterval = 5f;
 
+    [SerializeField]
+    protected float _patrolPointRange = 15f;
+
+    [SerializeField]
+    protected bool _isPatrolPointSet;
+
+    [SerializeField]
+    protected float _patrolInterval = 5f;
 
     [Header("Chase")]
-    [SerializeField] protected float _chaseRange = 3f;
-    [SerializeField] public bool _playerInChaseRange;
+    [SerializeField]
+    protected float _chaseRange = 3f;
 
+    [SerializeField]
+    public bool _playerInChaseRange;
 
     [Header("Attack")]
-    [SerializeField] protected float _attackRange = 1f;
-    [SerializeField] public bool _playerInAttackRange;
+    [SerializeField]
+    protected float _attackRange = 1f;
+
+    [SerializeField]
+    public bool _playerInAttackRange;
     public static bool _isAttack = false;
-    [SerializeField] protected float _attackCooldown = 3f;
+
+    [SerializeField]
+    protected float _attackCooldown = 3f;
     private bool _canAttack = true;
 
     // [SerializeField] protected bool _isAlreadyAttacked;
-    
-   
-    [SerializeField] protected bool _isParried = false; // Индивидуальная переменная для каждого врага
-    [SerializeField] protected bool _hasBeenTargeted;
 
+
+    [SerializeField]
+    protected bool _isParried = false; // Индивидуальная переменная для каждого врага
+
+    [SerializeField]
+    protected bool _hasBeenTargeted;
 
     [Header("Navigation")]
     protected NavMeshAgent _agent;
-    public LayerMask Ground, Player;
-
+    public LayerMask Ground,
+        Player;
 
     protected Rigidbody _rgbd;
     protected Collider _collider;
     protected Transform _target;
-    [SerializeField] protected Animator _animator;
 
+    [SerializeField]
+    protected Animator _animator;
 
     [Header("Movement Settings")]
-    [SerializeField] protected float _patrolSpeed = 3f;
-    [SerializeField] protected float _chaseSpeed = 5f;
+    [SerializeField]
+    protected float _patrolSpeed = 3f;
 
+    [SerializeField]
+    protected float _chaseSpeed = 5f;
 
     [Header("Vision Settings")]
-    [SerializeField] private float _fieldOfView = 120f; 
-    [SerializeField] private bool _isVisible = false;
-    [SerializeField] private float distanceToPlayer;
-    [SerializeField] private LayerMask _obstacleMask;  
+    [SerializeField]
+    private float _fieldOfView = 120f;
 
-    
+    [SerializeField]
+    private bool _isVisible = false;
+
+    [SerializeField]
+    private float distanceToPlayer;
+
+    [SerializeField]
+    private LayerMask _obstacleMask;
+
     [Header("State")]
     public EnemyState currentEnemyState;
-
 
     [Header("Objects-links")]
     public AttackTrigger attackTrigger;
@@ -82,7 +108,6 @@ public class Enemy : MonoBehaviour
         Parried,
         DeathState,
     }
-
 
     #region Events
     public delegate void ChaseEventHandler();
@@ -133,9 +158,9 @@ public class Enemy : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         distanceToPlayer = Vector3.Distance(transform.position, _target.position);
-        
+
         CheckForPlayerVisibility();
-        
+
         DetermineCurrentState();
 
         switch (currentEnemyState)
@@ -178,40 +203,31 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        // Если игрок в зоне атаки и в зоне преследования, переходим в состояние атаки
+        // Если игрок в зоне атаки, переходим в состояние атаки
         if (_playerInAttackRange)
         {
             currentEnemyState = EnemyState.Attacking;
             return;
         }
 
-        // Если игрок виден и в зоне преследования
-        if (_isVisible && _playerInChaseRange) // && attackTrigger._canDamage
+        // Если игрок видим и в зоне преследования, начинаем преследование
+        if (_isVisible)
         {
             currentEnemyState = EnemyState.Chasing;
             _hasBeenTargeted = true; // Игрок видим — цель захвачена
             return;
         }
 
-        // костыль на всякий (с такими флагами и при состоянии Chasing враг зависает на месте)
-        if (_hasBeenTargeted && !_isVisible && _playerInChaseRange)
-        {
-            _agent.SetDestination(_target.position);
-        }
-
-        // Если игрок был видимым, но теперь вышел из зоны видимости, продолжаем преследование по чутью
+        // Если игрок ранее был видим и в зоне преследования, продолжаем преследование по чутью
         if (_hasBeenTargeted && !_isVisible)
         {
             currentEnemyState = EnemyState.Chasing;
-
-            // перенести логику задержки hasbeentargeted
             return;
         }
 
-        // Если прошло 7 секунд и игрок вне зоны видимости — сбрасываем флаг и возвращаемся к патрулированию
-        if (!_isVisible && !_playerInChaseRange)
+        // Если прошло 7 секунд и игрок вне зоны видимости и зоны преследования — сбрасываем флаг и возвращаемся к патрулированию
+        if (!_hasBeenTargeted)
         {
-            _hasBeenTargeted = false;
             currentEnemyState = EnemyState.Patrolling;
             return;
         }
@@ -219,7 +235,6 @@ public class Enemy : MonoBehaviour
         // Если ничего не подходит — лог ошибки (на случай неожиданного поведения)
         // Debug.LogError("Не удалось определить текущее состояние врага. Проверьте флаги!");
     }
-
 
     #region Patrolling
 
@@ -246,12 +261,35 @@ public class Enemy : MonoBehaviour
     protected virtual void SearchPatrolPoint()
     {
         NavMeshHit hit;
-        Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
+        Vector3 randomPoint;
+        float safeDistanceFromEdge = 5f; // Минимальное расстояние до границы NavMesh
 
-        if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, NavMesh.AllAreas))
+        bool validPointFound = false;
+
+        // Ищем точку, которая будет достаточно далеко от границ NavMesh
+        while (!validPointFound)
         {
-            _currentPatrolPoint = hit.position;
-            _isPatrolPointSet = true;
+            // Генерация случайной точки внутри радиуса патрулирования
+            randomPoint =
+                transform.position + UnityEngine.Random.insideUnitSphere * _patrolPointRange;
+
+            // Проверяем, что точка находится на NavMesh
+            if (NavMesh.SamplePosition(randomPoint, out hit, _patrolPointRange, NavMesh.AllAreas))
+            {
+                NavMeshHit edgeHit;
+
+                // Проверяем расстояние до ближайшей границы NavMesh
+                if (NavMesh.FindClosestEdge(hit.position, out edgeHit, NavMesh.AllAreas))
+                {
+                    // Если расстояние до границы больше безопасного, точка считается подходящей
+                    if (edgeHit.distance >= safeDistanceFromEdge)
+                    {
+                        validPointFound = true;
+                        _currentPatrolPoint = hit.position;
+                        _isPatrolPointSet = true;
+                    }
+                }
+            }
         }
     }
 
@@ -265,20 +303,26 @@ public class Enemy : MonoBehaviour
 
     protected virtual void PlayerChase()
     {
-        if (_isVisible)
+        if (currentEnemyState == EnemyState.Chasing)
         {
-            Run?.Invoke();
-            _agent.SetDestination(_target.position);
-            _hasBeenTargeted = true;
-        }
-
-        // Если игрок вышел из зоны видимости, начинаем отсчет времени "чутья"
-        if (_hasBeenTargeted && !_isVisible)
-        {
-            StartCoroutine(ResetFollowingPlayer()); // Начинаем отсчет 7 секунд
+            // Если игрок в поле зрения, враг продолжает преследование
+            if (_isVisible)
+            {
+                Run?.Invoke();
+                _agent.SetDestination(_target.position);
+                _hasBeenTargeted = true; // игрока заметили, обновляем флаг
+            }
+            else if (_hasBeenTargeted && !_isVisible) // если игрок ранее был виден, но сейчас нет
+            {
+                // Начинаем отсчет 7 секунд, если еще не запущен
+                if (!_isFollowingReset)
+                {
+                    StartCoroutine(ResetFollowingPlayer());
+                    _isFollowingReset = true; // Устанавливаем флаг для блокировки повторного запуска
+                }
+            }
         }
     }
-
 
     protected virtual void PlayerAttack()
     {
@@ -286,12 +330,12 @@ public class Enemy : MonoBehaviour
         _agent.SetDestination(transform.position); // остановка врага
 
         // Проверяем, завершилась ли анимация атаки
-        if (_animator.GetBool("isAttacking") == false && !_playerInAttackRange)
-        {
-            _isAttack = false;
-            currentEnemyState = EnemyState.Chasing;
-        }
-        
+        // if (_animator.GetBool("isAttacking") == false && !_playerInAttackRange)
+        // {
+        //     _isAttack = false;
+        //     currentEnemyState = EnemyState.Chasing;
+        // }
+
         // Если игрок находится в радиусе атаки и атака не началась
         if (!_isParried && _playerInAttackRange)
         {
@@ -299,6 +343,16 @@ public class Enemy : MonoBehaviour
             _isAttack = true;
 
             StartCoroutine(AttackCooldown());
+        }
+    }
+
+    public void OnAttackAnimationEnd()
+    {
+        if (!_playerInAttackRange)
+        {
+            _isAttack = false;
+            currentEnemyState = EnemyState.Chasing;
+            Debug.Log("Переход в состояние преследования");
         }
     }
 
@@ -316,12 +370,12 @@ public class Enemy : MonoBehaviour
         StartCoroutine(C_OnDefeat());
     }
 
-    protected IEnumerator AttackCooldown()   // Корутина для создания задержки между атаками
+    protected IEnumerator AttackCooldown() // Корутина для создания задержки между атаками
     {
         _canAttack = false;
         yield return new WaitForSeconds(_attackCooldown);
         _canAttack = true;
-    
+
         _agent.isStopped = false;
     }
 
@@ -341,6 +395,8 @@ public class Enemy : MonoBehaviour
         currentEnemyState = EnemyState.Patrolling;
     }
 
+    private bool _isFollowingReset = false; // Флаг для отслеживания, запущена ли корутина
+
     public virtual IEnumerator ResetFollowingPlayer()
     {
         yield return new WaitForSeconds(7f);
@@ -349,8 +405,11 @@ public class Enemy : MonoBehaviour
         if (!_isVisible) // && !_playerInChaseRange
         {
             _hasBeenTargeted = false;
-            Debug.Log("Игрок потерян, враг прекращает преследование.");
+            currentEnemyState = EnemyState.Patrolling;
+            Debug.Log("Игрок потерян, враг прекращает преследование и возвращается к патрулированию.");
         }
+
+        _isFollowingReset = false; // Разблокировка корутины для повторного использования
     }
 
     #region Player Accessibility
@@ -402,7 +461,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-             _playerInChaseRange = false;
+            _playerInChaseRange = false;
         }
 
         if (Physics.CheckSphere(transform.position, _attackRange, Player))
@@ -414,14 +473,16 @@ public class Enemy : MonoBehaviour
             _playerInAttackRange = false;
         }
     }
-    
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, _chaseRange);
 
-        Vector3 forwardView = Quaternion.Euler(0, _fieldOfView / 2, 0) * transform.forward * _chaseRange;
-        Vector3 backwardView = Quaternion.Euler(0, -_fieldOfView / 2, 0) * transform.forward * _chaseRange;
+        Vector3 forwardView =
+            Quaternion.Euler(0, _fieldOfView / 2, 0) * transform.forward * _chaseRange;
+        Vector3 backwardView =
+            Quaternion.Euler(0, -_fieldOfView / 2, 0) * transform.forward * _chaseRange;
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + forwardView);
@@ -430,8 +491,10 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, _attackRange);
 
-        Vector3 forwardView2 = Quaternion.Euler(0, _fieldOfView / 2, 0) * transform.forward * _attackRange;
-        Vector3 backwardView2 = Quaternion.Euler(0, -_fieldOfView / 2, 0) * transform.forward * _attackRange;
+        Vector3 forwardView2 =
+            Quaternion.Euler(0, _fieldOfView / 2, 0) * transform.forward * _attackRange;
+        Vector3 backwardView2 =
+            Quaternion.Euler(0, -_fieldOfView / 2, 0) * transform.forward * _attackRange;
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + forwardView2);

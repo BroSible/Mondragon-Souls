@@ -6,7 +6,7 @@ public class CameraRaycastTransparency : MonoBehaviour
 {
     public Transform player;
     public LayerMask obstacleLayer;
-    public float fadeSpeed = 2f;
+    public float fadeSpeed = 1.5f;
     public Color rayColor = Color.red;
 
     private List<FadeObject> fadeObjects = new List<FadeObject>(); // Список всех объектов, которые скрываем

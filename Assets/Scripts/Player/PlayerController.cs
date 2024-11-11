@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     private PlayerLogic _playerLogic;
     private Animator animator;
     public Transform _cameraTransform;
-    private Transform _playerTransform;
+
     private CameraCursor _cameraCursor;
     [SerializeField] public bool IsDashing {get; set;} = false;
     [SerializeField] private float _dashTime = 0.5f;
@@ -30,7 +30,6 @@ public class PlayerController : MonoBehaviour
         _playerAttack = GetComponent<PlayerAttack>();
         _playerLogic = GetComponent<PlayerLogic>();
         _cameraCursor = GetComponent<CameraCursor>();
-        _playerTransform = GetComponent<Transform>();
         animator = GetComponent<Animator>();
     }
 
@@ -44,44 +43,50 @@ public class PlayerController : MonoBehaviour
         if (controller.isGrounded)
         {
             Vector3 targetDirection = GetMovementDirection();
+            bool isMovingInput = targetDirection.magnitude > 0.1f;
 
-            // Плавный поворот к направлению движения
-            if (targetDirection.magnitude > 0.1f && canMove)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
 
-            bool isMovingInput = Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0;
+            // Плавное ускорение игрока
             if (canMove && isMovingInput)
             {
-                // Увеличиваем скорость плавно до максимальной
                 currentSpeed = Mathf.MoveTowards(currentSpeed, speed, acceleration * Time.deltaTime);
+                moveDirection = targetDirection * currentSpeed;
             }
 
+            // Плавное замедление игрока
             else
             {
-                // Плавно замедляемся до нуля
                 currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.deltaTime);
+                moveDirection = moveDirection.normalized * currentSpeed;
             }
-
-            moveDirection = targetDirection * currentSpeed;
 
             //Dash
             if(Input.GetKey(KeyCode.Space) && _playerLogic.Stamina >= 20f && canMove)
             {
                StartCoroutine(Dash(moveDirection));
             }
+
+            // Поворот игрока по направлению движения
+            if (canMove && targetDirection.magnitude > 0.1f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+            
         }
 
+        // Гравитация
+        
         else
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.deltaTime);
+            //currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.deltaTime);
             moveDirection.y -= gravity * Time.deltaTime; 
+            
         }
-
         controller.Move(moveDirection * Time.deltaTime);
+        Debug.Log($"isGrounded:{controller.isGrounded}");
     }
+
 
     private Vector3 GetMovementDirection()
     {
@@ -103,7 +108,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    //Метод отключения поворота камеры на курсором, если игрок ходит. Если он стоит, то скрипт будет включен обратно.
+    //Метод отключения поворота камеры курсором, если игрок ходит. Если он стоит, то скрипт будет включен обратно.
     void CameraCursorEnabled()
     {
         if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || IsDashing)
@@ -155,7 +160,6 @@ public class PlayerController : MonoBehaviour
         IsDashing = false;
         yield break;
     }
-
 
     void UpdateAnimatorFlags()
     {

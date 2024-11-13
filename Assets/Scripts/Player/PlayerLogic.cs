@@ -177,6 +177,7 @@ public class PlayerLogic : MonoBehaviour
 		}
 		_totalPlayerHealth -= enemyDamagePoints * (currentShield._shield.protectionFactor / 100);
 		_animator.Play("Parry");
+		//_currentShield.enabled = true;
 		StartCoroutine(ResetParry());
 	}
 
@@ -197,6 +198,7 @@ public class PlayerLogic : MonoBehaviour
 	{
 		yield return new WaitForSeconds(_currentShield._shield.rollbackTime);
 		_isParrying = false;
+		//_currentShield.enabled = false;
 		_animator.SetBool("isParrying", false);
 
 		if (_successfulParry)

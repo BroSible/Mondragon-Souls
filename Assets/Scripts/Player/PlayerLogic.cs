@@ -33,6 +33,7 @@ public class PlayerLogic : MonoBehaviour
 	public static bool _isTakingDamage = false;
 	private PlayerController _playerController;
 	private PlayerAttack _playerAttack;
+	private Enemy _enemy;
 	public Shield_holder _currentShield;
 	private Animator _animator;
 	public static bool _successfulParry = false;

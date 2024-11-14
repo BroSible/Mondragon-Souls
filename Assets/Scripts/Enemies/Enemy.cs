@@ -71,6 +71,7 @@ public class Enemy : MonoBehaviour
 
 	[Header("Objects-links")]
 	public AttackTrigger attackTrigger;
+	private PlayerAttack _playerAttack;
 
 	#endregion Fields
 
@@ -176,10 +177,21 @@ public class Enemy : MonoBehaviour
 		}
 		
 		hasBeenTargetedText.text = "HasBeenTargeted: " + _hasBeenTargeted.ToString();
+		
+		if (_playerAttack.isAttacking)
+		{
+			TakingPlayerDmg(_playerAttack.currentWeapon.damage);
+		}
 	}
 
 	protected virtual void DetermineCurrentState()
 	{
+		if (_enemyHealthPoints <= 0)
+		{
+			currentEnemyState = EnemyState.DeathState;
+			return;	
+		}
+		
 		// Если враг в состоянии "Parried", это всегда имеет наивысший приоритет
 		if (_isParried)
 		{
@@ -188,7 +200,7 @@ public class Enemy : MonoBehaviour
 		}
 
 		// Если игрок в зоне атаки, переходим в состояние атаки
-		if (_playerInAttackRange && !_isParried)
+		if (_playerInAttackRange && !_isParried && _isVisible)
 		{
 			currentEnemyState = EnemyState.Attacking;
 			return;

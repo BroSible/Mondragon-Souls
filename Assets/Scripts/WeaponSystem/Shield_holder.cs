@@ -18,7 +18,7 @@ public class Shield_holder : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Проверяем, имеет ли коллайдер нужный тег
-        if (other.CompareTag("EnemyTarget"))
+        if (other.CompareTag("EnemyTarget") && PlayerLogic._isParrying)
         {
             // Пытаемся найти компонент Enemy на корневом объекте (враге)
             Enemy detectedEnemy = other.GetComponentInParent<Enemy>();

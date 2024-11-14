@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour
 
         if (direction == Vector3.zero)
         {
-            direction = transform.forward;
+            direction = transform.forward * 3f;
             staminaCost = 10f;
         }
 

@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public Vector3 moveDirection = Vector3.zero;
     private PlayerAttack _playerAttack;
     private PlayerLogic _playerLogic;
+    private TargetLock _targetLock;
     private Animator animator;
     public Transform _cameraTransform;
 
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         _playerAttack = GetComponent<PlayerAttack>();
         _playerLogic = GetComponent<PlayerLogic>();
+        _targetLock = GetComponent<TargetLock>();
         _cameraCursor = GetComponent<CameraCursor>();
         animator = GetComponent<Animator>();
     }
@@ -111,7 +113,9 @@ public class PlayerController : MonoBehaviour
     //Метод отключения поворота камеры курсором, если игрок ходит. Если он стоит, то скрипт будет включен обратно.
     void CameraCursorEnabled()
     {
-        if(moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || IsDashing)
+        bool canDisableCameraCursor = moveDirection.magnitude >= 1f || _playerAttack.isAttacking || PlayerAttack._isEnhancedAttacking || PlayerLogic._isParrying || IsDashing || _targetLock.isLockedOn;
+
+        if(canDisableCameraCursor)
         {
             _cameraCursor.enabled = false;
         }
@@ -132,7 +136,7 @@ public class PlayerController : MonoBehaviour
 
         if (direction == Vector3.zero)
         {
-            direction = transform.forward;
+            direction = transform.forward * 3f;
             staminaCost = 10f;
         }
 
